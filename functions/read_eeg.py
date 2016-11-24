@@ -5,6 +5,7 @@ import mne
 def read_mat(path):
     mat = h5py.File(path)
     data = mat['eeg'][()] #stores is as a numpy array - [()]
+    data = data * 1e-09 #because of stupid scaling
     return(data)
 
 def numpy_mne(data, frequency):
