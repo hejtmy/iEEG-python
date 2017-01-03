@@ -15,8 +15,8 @@ FREQUENCY = 250
 path_events = "U:\\OneDrive\\FGU\\iEEG\\p83\\UTAlloEgo\\EEG\\Preprocessed\\p83_UT.csv"
 path_events = "D:/IntracranialElectrodes/Data/p83/UTAlloEgo/experiment_data/p83_ut.csv"
 
-raw = mneprep.load_raw(path)
-mne_events, mapp = mneprep.load_events(path_events)
+raw = mneprep.load_raw(path, FREQUENCY)
+mne_events, mapp = mneprep.load_events(path_events, FREQUENCY)
 
 raw.plot(events = mne_events, scalings = 'auto')
 
