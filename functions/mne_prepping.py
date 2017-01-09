@@ -3,6 +3,7 @@ from functions import read_experiment_data as exprd
 
 def load_raw(data_path, frequency):
     data = eegrd.read_mat(data_path)
+    data = data * 1e-09  # because of stupid scaling
     raw = eegrd.numpy_mne(data, frequency)
     return raw
 
