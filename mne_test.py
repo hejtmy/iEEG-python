@@ -1,32 +1,37 @@
 import mne
+import numpy as np
 
-from functions import read_eeg as eegrd
-from functions import read_experiment_data as exprd
-path = "D:\\IntracranialElectrodes\\Data\\p126\\UnityAlloEgo\\EEG\\Preprocessed\\prep_bipolar_250.mat"
+from functions import mne_prepping as mneprep
+from functions import mne_helpers as mnehelp
+from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
+
 path = "U:\\OneDrive\\FGU\\iEEG\\p83\\UTAlloEgo\\EEG\\Preprocessed\\prep_bipolar_250.mat"
+path = "D:\\IntracranialElectrodes\\Data\\p83\\UTAlloEgo\\EEG\\Preprocessed\\prep_perHeadbox_250.mat"
+path = "D:\\IntracranialElectrodes\\Data\\p83\\v\\EEG\\Preprocessed\\prep_perElectrode_250.mat"
+path = "D:\\IntracranialElectrodes\\Data\\p83\\UTAlloEgo\\EEG\\Preprocessed\\prep_250.mat"
 
 FREQUENCY = 250
 
 path_events = "U:\\OneDrive\\FGU\\iEEG\\p83\\UTAlloEgo\\EEG\\Preprocessed\\p83_UT.csv"
-path_events = "D:\\IntracranialElectrodes\\Data\\p126\\UnityAlloEgo\\EEG\\Preprocessed\\p126_unity.csv"
-data = eegrd.read_mat(path)
+path_events = "D:/IntracranialElectrodes/Data/p83/UTAlloEgo/experiment_data/p83_ut.csv"
 
-raw = eegrd.numpy_mne(data, FREQUENCY)
-pd_events = exprd.read_events(path_events)
-mne_events, mapp = exprd.mne_epochs_from_pd(pd_events, FREQUENCY)
+raw = mneprep.load_raw(path, FREQUENCY)
+mne_events, mapp = mneprep.load_events(path_events, FREQUENCY)
 
-epochs = mne.Epochs(raw, mne_events, [-1, 2], event_id = mapp, add_eeg_ref = False)
+raw.plot(events = mne_events, scalings = 'auto')
 
-from mne.datasets import sample  # noqa
-data_path = sample.data_path()
-raw_fname = data_path + '/MEG/sample/sample_audvis_filt-0-40_raw.fif'
-print(raw_fname)
-raw = mne.io.read_raw_fif(raw_fname, add_eeg_ref=False)
-print(raw)
-print(raw.info)
-start, stop = raw.time_as_index([100, 115])  # 100 s to 115 s data segment
-data, times = raw[:, start:stop]
-print(data.shape)
-print(times.shape)
-data, times = raw[2:20:3, start:stop]  # access underlying data
-raw.plot()
+epochs = mne.Epochs(raw, mne_events, event_id = mapp, tmin=-0.5, tmax=2, add_eeg_ref = False)
+epochs.plot(block = True, scalings = 'auto')
+
+onsets = epochs['onsets_500_1500']
+onsets.plot(scalings = 'auto', n_epochs = 5)
+
+stops = epochs['stops_500_1500']
+stops.plot(scalings = 'auto', n_epochs = 5)
+
+freqs = np.arange(2, 10, 1)
+n_cycles = freqs / 2
+
+picks = mnehelp.def_picks(raw)
+power = tfr_morlet(onsets, freqs=freqs, n_cycles=n_cycles, picks = picks, return_itc=False)
+power.plot()
