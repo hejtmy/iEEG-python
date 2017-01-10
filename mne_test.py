@@ -27,19 +27,22 @@ raw_bip.plot(events = mne_events, scalings = 'auto', event_color = {4 : 'green',
 
 epochs_perHead = mne.Epochs(raw_perhead, mne_events, event_id = mapp, tmin=-0.5, tmax=2, add_eeg_ref = False)
 epochs_perHead.plot(block = True, scalings = 'auto')
+epochs_perHead['onsets_0_1500', 'stops_500_1500'].plot(block = True, scalings = 'auto')
 
 epochs_bip = mne.Epochs(raw_bip, mne_events, event_id = mapp, tmin=-0.5, tmax=2, add_eeg_ref = False)
 epochs_bip.plot(block = True, scalings = 'auto')
+epochs_bip['onsets_0_1500', 'stops_500_1500'].plot(block = True, scalings = 'auto')
 
-onsets = epochs_perHead['onsets_500_1500']
-onsets.plot(scalings = 'auto', n_epochs = 5)
-
-stops = epochs_perHead['stops_500_1500']
-stops.plot(scalings = 'auto', n_epochs = 5)
+onsets_perHead = epochs_perHead['onsets_0_1500']
+onsets_perHead.plot(scalings = 'auto', n_epochs = 5)
+onsets_bip = epochs_bip['onsets_0_1500']
+stops_perHead = epochs_perHead['stops_500_1500']
+stops_bip = epochs_bip['stops_500_1500']
 
 freqs = np.arange(2, 10, 1)
 n_cycles = freqs / 2
 
-picks = mnehelp.def_picks(raw_perhead)
-power = tfr_morlet(onsets, freqs=freqs, n_cycles=n_cycles, picks = picks, return_itc=False)
-power.plot()
+picks = mnehelp.def_picks(stops_bip)
+power = tfr_morlet(stops_bip, freqs = freqs, n_cycles=n_cycles, picks = picks, return_itc=False)
+power.plot([0], baseline=(0., 0.1), mode = 'mean', vmin=-1., vmax=3.,
+           title='Sim: Using Morlet wavelet')
