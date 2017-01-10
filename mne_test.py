@@ -5,33 +5,41 @@ from functions import mne_prepping as mneprep
 from functions import mne_helpers as mnehelp
 from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 
-path = "U:\\OneDrive\\FGU\\iEEG\\p83\\UTAlloEgo\\EEG\\Preprocessed\\prep_bipolar_250.mat"
-path = "D:\\IntracranialElectrodes\\Data\\p83\\UTAlloEgo\\EEG\\Preprocessed\\prep_perHeadbox_250.mat"
-path = "D:\\IntracranialElectrodes\\Data\\p83\\v\\EEG\\Preprocessed\\prep_perElectrode_250.mat"
+path_bip = "U:\\OneDrive\\FGU\\iEEG\\p83\\UTAlloEgo\\EEG\\Preprocessed\\prep_bipolar_250.mat"
+path_perHead = "D:\\IntracranialElectrodes\\Data\\p83\\UTAlloEgo\\EEG\\Preprocessed\\prep_perHeadbox_250.mat"
+path_perElec = "D:\\IntracranialElectrodes\\Data\\p83\\v\\EEG\\Preprocessed\\prep_perElectrode_250.mat"
 path = "D:\\IntracranialElectrodes\\Data\\p83\\UTAlloEgo\\EEG\\Preprocessed\\prep_250.mat"
 
 FREQUENCY = 250
 
 path_events = "U:\\OneDrive\\FGU\\iEEG\\p83\\UTAlloEgo\\EEG\\Preprocessed\\p83_UT.csv"
-path_events = "D:/IntracranialElectrodes/Data/p83/UTAlloEgo/experiment_data/p83_ut.csv"
+path_events = "D:\\IntracranialElectrodes\\Data\\p83\\UTAlloEgo\\experiment_data\\p83_ut.csv"
 
-raw = mneprep.load_raw(path, FREQUENCY)
+raw_perhead = mneprep.load_raw(path_perHead, FREQUENCY)
+raw_bip = mneprep.load_raw(path_bip, FREQUENCY)
 mne_events, mapp = mneprep.load_events(path_events, FREQUENCY)
 
-raw.plot(events = mne_events, scalings = 'auto')
+raw_perhead.plot(events = mne_events, scalings = 'auto')
+raw_perhead.plot(events = mne_events, scalings = 'auto', event_color = {4 : 'green', 5: 'red'}) #coloring events 4 and 5
 
-epochs = mne.Epochs(raw, mne_events, event_id = mapp, tmin=-0.5, tmax=2, add_eeg_ref = False)
-epochs.plot(block = True, scalings = 'auto')
+raw_bip.plot(events = mne_events, scalings = 'auto')
+raw_bip.plot(events = mne_events, scalings = 'auto', event_color = {4 : 'green', 5: 'red'}) #coloring events 4 and 5
 
-onsets = epochs['onsets_500_1500']
+epochs_perHead = mne.Epochs(raw_perhead, mne_events, event_id = mapp, tmin=-0.5, tmax=2, add_eeg_ref = False)
+epochs_perHead.plot(block = True, scalings = 'auto')
+
+epochs_bip = mne.Epochs(raw_bip, mne_events, event_id = mapp, tmin=-0.5, tmax=2, add_eeg_ref = False)
+epochs_bip.plot(block = True, scalings = 'auto')
+
+onsets = epochs_perHead['onsets_500_1500']
 onsets.plot(scalings = 'auto', n_epochs = 5)
 
-stops = epochs['stops_500_1500']
+stops = epochs_perHead['stops_500_1500']
 stops.plot(scalings = 'auto', n_epochs = 5)
 
 freqs = np.arange(2, 10, 1)
 n_cycles = freqs / 2
 
-picks = mnehelp.def_picks(raw)
+picks = mnehelp.def_picks(raw_perhead)
 power = tfr_morlet(onsets, freqs=freqs, n_cycles=n_cycles, picks = picks, return_itc=False)
 power.plot()
