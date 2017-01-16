@@ -10,10 +10,10 @@ path_perhead = "D:\\IntracranialElectrodes\\Data\\p83\\UTAlloEgo\\EEG\\Preproces
 path_perElec = "D:\\IntracranialElectrodes\\Data\\p83\\v\\EEG\\Preprocessed\\prep_perElectrode_250.mat"
 path = "D:\\IntracranialElectrodes\\Data\\p83\\UTAlloEgo\\EEG\\Preprocessed\\prep_250.mat"
 
-FREQUENCY = 250
-
 path_events = "U:\\OneDrive\\FGU\\iEEG\\p83\\UTAlloEgo\\EEG\\Preprocessed\\p83_UT.csv"
 path_events = "D:\\IntracranialElectrodes\\Data\\p83\\UTAlloEgo\\experiment_data\\p83_ut.csv"
+
+FREQUENCY = 250
 
 raw_perhead = mneprep.load_raw(path_perhead, FREQUENCY)
 raw_bip = mneprep.load_raw(path_bip, FREQUENCY)
@@ -34,13 +34,13 @@ epochs_bip = mne.Epochs(raw_bip, mne_events, event_id = mapp, tmin=-2, tmax=3, a
 epochs_bip.plot(block = True, scalings = 'auto')
 epochs_bip['onsets_0_1500', 'stops_500_1500'].plot(block = True, scalings = 'auto')
 
+# EVOKED
 onsets_perHead = epochs_perhead['onsets_500_1500']
 onsets_perHead.plot(scalings = 'auto', n_epochs = 5)
 onsets_bip = epochs_bip['onsets_0_1500']
 stops_perHead = epochs_perhead['stops_500_1500']
 stops_bip = epochs_bip['stops_500_1500']
 
-# EVOKED
 onsets_evoked = onsets_perHead.average()
 onsets_evoked.plot()
 stops_evoked = stops_perHead.average()
