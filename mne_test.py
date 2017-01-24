@@ -51,6 +51,13 @@ freqs = np.arange(2, 10, 1)
 n_cycles = freqs / 2
 
 picks = mnehelp.def_picks(stops_bip)
-power = tfr_morlet(stops_bip, freqs = freqs, n_cycles=n_cycles, picks = picks, return_itc = False)
-power.plot([0], baseline=(0., 0.1), mode = 'mean', vmin=-1., vmax=3.,
-           title='Sim: Using Morlet wavelet')
+power_stop = tfr_morlet(stops_bip, freqs = freqs, n_cycles = n_cycles, picks = picks, return_itc = False)
+
+power_stop.plot([0], baseline=(-2., -1.5), mode = 'logratio', vmin = -1., vmax = 3., title = 'Sim: Using Morlet wavelet')
+power_stop.plot_topo(baseline=(-2., -1.5), mode = 'logratio')
+
+picks = mnehelp.def_picks(onsets_bip)
+power_onset = tfr_morlet(onsets_bip, freqs = freqs, n_cycles=n_cycles, picks = picks, return_itc = False)
+
+power_onset.plot([0], baseline=(-2., -1.5), mode = 'logratio', vmin = -1., vmax = 3., title = 'Onsets ')
+power_onset.plot_topo(baseline=(-2., -1.5), mode = 'logratio')
