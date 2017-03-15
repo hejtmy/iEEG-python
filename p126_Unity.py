@@ -60,15 +60,22 @@ epochs_bip_bva['onsets_500_1500', 'stops_500_1500'].plot(block = True, scalings 
 freqs = np.arange(2, 10, 0.5)
 n_cycles = freqs / 2
 
-picks = mnehelp.def_picks(epochs_perhead_vr['onsets_500_1500'])
-power_onset_vr = tfr_morlet(epochs_perhead_vr['onsets_500_1500'], freqs = freqs, n_cycles = n_cycles, picks = [3], return_itc = False)
-power_onset_vr.plot([0], baseline=(-2., -1.5), mode = 'logratio')
-power_onset_vr.plot([0], mode = 'logratio')
+picks_perhead = mnehelp.def_picks(epochs_perhead_vr['onsets_500_1500'])
+box =  mnehelp.custom_box_layout(picks_perhead)
+plot_picks_perhead = range(0, len(picks_perhead))
 
-power_onset_vr.plot_topo(baseline=(-2., -1.5), mode = 'logratio')
+power_onset_perhead_vr = tfr_morlet(epochs_perhead_vr['onsets_500_1500'], freqs = freqs, n_cycles = n_cycles, picks = picks_perhead, return_itc = False)
+# NEED to pass picks because default IGNORES SEEG channels
+power_onset_perhead_vr.plot_topo(picks = plot_picks_perhead, baseline=(-2., -1.5), mode = 'logratio', layout = box)
 
+power_onset_perhead_bva = tfr_morlet(epochs_perhead_bva['onsets_500_1500'], freqs = freqs, n_cycles = n_cycles, picks = picks_perhead, return_itc = False)
+# NEED to pass picks because default IGNORES SEEG channels
+power_onset_perhead_bva.plot_topo(picks = plot_picks_perhead, baseline=(-2., -1.5), mode = 'logratio', layout = box)
 
-picks = mnehelp.def_picks(epochs_perhead_vr['onsets_500_1500'])
+## BIPORAL
+picks_bip = mnehelp.def_picks(epochs_bip_vr['onsets_500_1500'])
+box_bip =  mnehelp.custom_box_layout(picks_bip)
+plot_picks_bip = range(0, len(picks_bip))
 power_onset = tfr_morlet(epochs_perhead_vr['onsets_500_1500'], freqs = freqs, n_cycles=n_cycles, picks = picks, return_itc = False)
 
 power_onset.plot([0], baseline=(-2., -1.5), mode = 'logratio', vmin = -1., vmax = 3., title = 'Onsets ')
