@@ -40,11 +40,11 @@ raw_perhead_bva.info["bads"] = ['55', '56', '57', '58', '59']
 raw_bip_bva.info["bads"] = ['45', '46', '47', '48']
 
 ## Epoching
-epochs_perhead_vr = mne.Epochs(raw_perhead_vr, mne_events_vr, event_id = mapp_vr, tmin = -1.5, tmax = 2, add_eeg_ref = False)
-epochs_bip_vr = mne.Epochs(raw_bip_vr, mne_events_vr, event_id = mapp_vr, tmin=-2, tmax=3, add_eeg_ref = False)
+epochs_perhead_vr = mne.Epochs(raw_perhead_vr, mne_events_vr, event_id = mapp_vr, tmin = -3, tmax = 3, add_eeg_ref = False)
+epochs_bip_vr = mne.Epochs(raw_bip_vr, mne_events_vr, event_id = mapp_vr, tmin=-3, tmax = 3, add_eeg_ref = False)
 
-epochs_perhead_bva = mne.Epochs(raw_perhead_bva, mne_events_vr, event_id = mapp_vr, tmin = -1.5, tmax = 2, add_eeg_ref = False)
-epochs_bip_bva = mne.Epochs(raw_bip_bva, mne_events_vr, event_id = mapp_vr, tmin=-2, tmax=3, add_eeg_ref = False)
+epochs_perhead_bva = mne.Epochs(raw_perhead_bva, mne_events_vr, event_id = mapp_vr, tmin = -3, tmax = 3, add_eeg_ref = False)
+epochs_bip_bva = mne.Epochs(raw_bip_bva, mne_events_vr, event_id = mapp_vr, tmin=-3, tmax=3, add_eeg_ref = False)
 
 onsets_perhead = epochs_perhead_vr['onsets_500_1500']
 onsets_bip = epochs_bip_vr['onsets_500_1500']
@@ -57,7 +57,7 @@ epochs_bip_vr['onsets_500_1500', 'stops_500_1500'].plot(block = True, scalings =
 epochs_perhead_bva['onsets_500_1500', 'stops_500_1500'].plot(block = True, scalings = 'auto')
 epochs_bip_bva['onsets_500_1500', 'stops_500_1500'].plot(block = True, scalings = 'auto')
 
-freqs = np.arange(2, 10, 0.5)
+freqs = np.arange(2, 30, 1)
 n_cycles = freqs / 2
 
 picks_perhead = mnehelp.def_picks(epochs_perhead_vr['onsets_500_1500'])
@@ -76,7 +76,6 @@ power_onset_perhead_bva.plot_topo(picks = plot_picks_perhead, baseline=(-2., -1.
 picks_bip = mnehelp.def_picks(epochs_bip_vr['onsets_500_1500'])
 box_bip =  mnehelp.custom_box_layout(picks_bip)
 plot_picks_bip = range(0, len(picks_bip))
-power_onset = tfr_morlet(epochs_perhead_vr['onsets_500_1500'], freqs = freqs, n_cycles=n_cycles, picks = picks, return_itc = False)
+power_onset_bip_vr = tfr_morlet(epochs_bip_vr['onsets_500_1500'], freqs = freqs, n_cycles=n_cycles, picks = picks_bip, return_itc = False)
 
-power_onset.plot([0], baseline=(-2., -1.5), mode = 'logratio', vmin = -1., vmax = 3., title = 'Onsets ')
-power_onset.plot_topo(baseline=(-2., -1.5), mode = 'logratio')
+power_onset_bip_vr.plot_topo(picks = plot_picks_bip, baseline=(-2., -1.5), mode = 'logratio', layout = box_bip)
