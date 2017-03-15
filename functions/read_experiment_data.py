@@ -18,6 +18,7 @@ the transition is made from (only used when the new value is bigger than the old
 is the new event value.
 http://martinos.org/mne/dev/auto_tutorials/plot_creating_data_structures.html
 """
+
 def mne_epochs_from_pd(pd_frame, frequency):
     event_types = pd_frame.name.unique()
     event_nums = list(range(1,  event_types.size + 1))
