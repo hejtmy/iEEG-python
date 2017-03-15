@@ -21,6 +21,7 @@ path_bip = "D:\\IntracranialElectrodes\\Data\\p126\\UnityAlloEgo\\EEG\\Preproces
 mne_events, mapp = mneprep.load_events(path_events, FREQUENCY)
 
 raw_perhead.plot(events = mne_events, scalings = 'auto')
+# {'ArduinoPulseStop': blue, 'onsets_500_1500': green, 'stops_500_1500': red}
 raw_perhead.plot(events = mne_events, scalings = 'auto', event_color = {1 : 'blue', 2 : 'green', 3: 'red'}) #coloring events 4 and 5
 
 raw_bip.plot(events = mne_events, scalings = 'auto')
@@ -45,7 +46,6 @@ onsets_evoked = onsets_perHead.average()
 onsets_evoked.plot()
 stops_evoked = stops_perHead.average()
 stops_evoked.plot()
-
 
 freqs = np.arange(2, 10, 1)
 n_cycles = freqs / 2
