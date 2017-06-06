@@ -1,5 +1,6 @@
 from functions import read_eeg as eegrd
 from functions import read_experiment_data as exprd
+import numpy as np
 import pandas as pd
 
 def load_raw(data_path, frequency):
@@ -24,8 +25,16 @@ def load_unity_events(events_path):
     return pd_events
 
 def pd_to_mne_events(pd_events, frequency):
-    mne_events, mapp = exprd.mne_epochs_from_pd(pd_events, frequency)
-    return mne_events, mapp
+    event_types = pd_events.name.unique()
+    event_nums = list(range(1,  event_types.size + 1))
+    mapping =  dict(zip(event_types, event_nums))
+    pd_frame = pd_events.replace({'name': mapping})
+    pd_frame = pd_frame.sort_values(by = 'time')
+    events_second_col = [0] * pd_frame.shape[0]
+    events = np.array([pd_frame.time * frequency, events_second_col, pd_frame.name])
+    events = events.astype(int)
+    events = events.transpose()
+    return events, mapping
 
 def create_mne_events(events_path, frequency):
     pd_events = load_matlab_events(events_path)
