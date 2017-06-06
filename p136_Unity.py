@@ -16,31 +16,29 @@ path_onset_events = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\
 FREQUENCY = 250
 
 # Loading Unnity data
-raw_original_vr = mneprep.load_raw(path_perhead_vr, FREQUENCY)
+raw_original_vr = mneprep.load_raw(path_original_vr, FREQUENCY)
+raw_perhead_vr = mneprep.load_raw(path_perhead_vr, FREQUENCY)
 raw_bip_vr = mneprep.load_raw(path_bip_vr, FREQUENCY)
 
 pd_unity_events = mneprep.load_unity_events(path_unity_events)
 pd_matlab_events = mneprep.load_matlab_events(path_onset_events)
 pd_events = pd.concat([pd_unity_events, pd_matlab_events])
+pd_events = mneprep.clear_pd(pd_events)
+pd_events = mneprep.solve_duplicates(pd_events, FREQUENCY)
 
 mne_events_vr, mapp_vr = mneprep.pd_to_mne_events(pd_events, FREQUENCY)
 
-raw_perhead_vr.plot(events = mne_events_vr, scalings='auto', event_color={1: 'blue', 2: 'green', 3: 'red'})
-raw_bip_vr.plot(events=mne_events_vr, scalings='auto', event_color={1: 'blue', 2: 'green', 3: 'red'})
+raw_original_vr.plot(events = mne_events_vr, scalings='auto')
+raw_bip_vr.plot(events=mne_events_vr, scalings='auto', event_color = {1: 'blue', 2: 'green', 3: 'red'})
 
-raw_perhead_vr.info["bads"] = ['55', '56', '57', '58', '59']
-raw_bip_vr.info["bads"] = ['45', '46', '47', '48']
+raw_original_vr.info["bads"] = ['47']
 
 ## Epoching
-epochs_perhead_vr = mne.Epochs(raw_perhead_vr, mne_events_vr, event_id=mapp_vr, tmin=-3, tmax=3, add_eeg_ref=False)
-epochs_bip_vr = mne.Epochs(raw_bip_vr, mne_events_vr, event_id=mapp_vr, tmin=-3, tmax=3, add_eeg_ref=False)
+epochs_original_vr = mne.Epochs(raw_original_vr, mne_events_vr, event_id=mapp_vr, tmin=-3, tmax=3, add_eeg_ref=False)
 
-onsets_perhead = epochs_perhead_vr['onsets_500_1500']
-onsets_bip = epochs_bip_vr['onsets_500_1500']
+onsets_perhead = epochs_original_vr['onsets_500_1500']
 
-epochs_perhead_vr['onsets_500_1500', 'stops_500_1500'].plot(block=True, scalings='auto')
-epochs_bip_vr['onsets_500_1500', 'stops_500_1500'].plot(block=True, scalings='auto')
-
+epochs_original_vr['onsets_500_1500', 'stops_500_1500'].plot(block=True, scalings='auto')
 
 freqs = np.arange(2, 30, 1)
 n_cycles = freqs / 2
