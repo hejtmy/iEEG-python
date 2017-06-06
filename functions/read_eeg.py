@@ -1,6 +1,7 @@
-import numpy as np
 import h5py
 import mne
+import pandas as pd
+from functions import helpers
 
 def read_mat(path):
     mat = h5py.File(path)
@@ -15,3 +16,8 @@ def numpy_mne(data, frequency):
     info = mne.create_info(ch_names = ch_names, sfreq = frequency, ch_types = ch_types)
     raw = mne.io.RawArray(data, info)
     return(raw)
+
+def read_montage(path):
+    pd_montage = pd.read_csv(path)
+    pd_montage = helpers.remove_unnamed(pd_montage)
+    return pd_montage
