@@ -1,10 +1,13 @@
 import mne
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from functions import mne_prepping as mneprep
 from functions import mne_helpers as mnehelp
 from functions import read_eeg as readeegr
+
+from mne.stats import permutation_cluster_test
 
 from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 
@@ -54,7 +57,47 @@ pick_orig_hip = mnehelp.picks_all_localised(epochs_original_vr['pointingEnded_Eg
 box = mnehelp.custom_box_layout(pick_orig_hip)
 plot_pick_orig_hip = range(0, len(pick_orig_hip))
 
-power_point_orig_hip_vr = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles=n_cycles,
+power_point_orig_hip_vr_ego = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles=n_cycles,
                                     picks = pick_orig_hip, return_itc=False)
-# NEED to pass picks because default IGNORES SEEG channels
-power_point_orig_hip_vr.plot_topo(picks=plot_pick_orig_hip, baseline=(-2., -1.5), mode='logratio', layout=box)
+power_point_orig_hip_vr_allo = tfr_morlet(epochs_original_vr['pointingEnded_Allo'], freqs=freqs, n_cycles=n_cycles,
+                                    picks = pick_orig_hip, return_itc=False)
+
+power_point_orig_hip_vr_ego.plot_topo(picks=plot_pick_orig_hip, baseline=(-2., -1.5), mode='logratio', layout=box)
+power_point_orig_hip_vr_allo.plot_topo(picks=plot_pick_orig_hip, baseline=(-2., -1.5), mode='logratio', layout=box)
+
+power_trials_point_orig_hip_ego = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles=n_cycles,
+                                    picks = pick_orig_hip, return_itc=False, average = False)
+power_trials_point_orig_hip_allo = tfr_morlet(epochs_original_vr['pointingEnded_Allo'], freqs=freqs, n_cycles=n_cycles,
+                                    picks = pick_orig_hip, return_itc=False, average = False)
+
+power_trials_point_orig_hip_ego.apply_baseline(mode='ratio', baseline=(None, 0))
+power_trials_point_orig_hip_allo.apply_baseline(mode='ratio', baseline=(None, 0))
+
+
+epochs_power_1 = power_trials_point_orig_hip_ego.data[:, 0, :, :]  # only 1 channel as 3D matrix
+epochs_power_2 = power_trials_point_orig_hip_allo.data[:, 0, :, :]  # only 1 channel as 3D matrix
+
+threshold = 6.0
+T_obs, clusters, cluster_p_values, H0 = permutation_cluster_test([epochs_power_1, epochs_power_2],
+                             n_permutations=100, threshold=threshold, tail=0)
+
+times = 1e3 * epochs_original_vr['pointingEnded_Ego'].times  # change unit to ms
+
+plt.figure()
+# Create new stats image with only significant clusters
+T_obs_plot = np.nan * np.ones_like(T_obs)
+for c, p_val in zip(clusters, cluster_p_values):
+    if p_val <= 0.05:
+        T_obs_plot[c] = T_obs[c]
+
+plt.imshow(T_obs,
+           extent=[times[0], times[-1], freqs[0], freqs[-1]],
+           aspect='auto', origin='lower', cmap='gray')
+plt.imshow(T_obs_plot,
+           extent=[times[0], times[-1], freqs[0], freqs[-1]],
+           aspect='auto', origin='lower', cmap='RdBu_r')
+plt.xlabel('Time (ms)')
+plt.ylabel('Frequency (Hz)')
+plt.title('Induced power ()')
+
+plt.show()
