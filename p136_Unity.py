@@ -4,6 +4,8 @@ import pandas as pd
 
 from functions import mne_prepping as mneprep
 from functions import mne_helpers as mnehelp
+from functions import read_eeg as readeegr
+
 from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 
 path_original_vr = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\prep_256.mat"
@@ -12,6 +14,8 @@ path_bip_vr = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\Prepro
 
 path_unity_events = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\p136_unity.csv"
 path_onset_events = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\p136_onsets.csv"
+path_montage = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\p136_montage.csv"
+
 
 FREQUENCY = 250
 
@@ -26,6 +30,9 @@ pd_events = pd.concat([pd_unity_events, pd_matlab_events])
 pd_events = mneprep.clear_pd(pd_events)
 pd_events = mneprep.solve_duplicates(pd_events, FREQUENCY)
 
+# loading montage
+pd_montage = readeegr.read_montage(path_montage)
+
 mne_events_vr, mapp_vr = mneprep.pd_to_mne_events(pd_events, FREQUENCY)
 
 raw_original_vr.plot(events = mne_events_vr, scalings='auto')
@@ -36,21 +43,21 @@ raw_original_vr.info["bads"] = ['47']
 ## Epoching
 epochs_original_vr = mne.Epochs(raw_original_vr, mne_events_vr, event_id=mapp_vr, tmin=-3, tmax=3, add_eeg_ref=False)
 
-onsets_perhead = epochs_original_vr['onsets_500_1500']
-
 epochs_original_vr['onsets_500_1500', 'stops_500_1500'].plot(block=True, scalings='auto')
+
+epochs_original_vr["pointingEnded_Ego", "pointingEnded_Allo"].plot(block=True, scalings='auto')
 
 freqs = np.arange(2, 30, 1)
 n_cycles = freqs / 2
 
-picks_perhead = mnehelp.def_picks(epochs_perhead_vr['onsets_500_1500'])
-box = mnehelp.custom_box_layout(picks_perhead)
-plot_picks_perhead = range(0, len(picks_perhead))
+pick_orig = mnehelp.def_picks(epochs_original_vr['pointingEnded_Ego'])
+box = mnehelp.custom_box_layout(pick_orig)
+plot_pick_orig = range(0, len(pick_orig))
 
-power_onset_perhead_vr = tfr_morlet(epochs_perhead_vr['onsets_500_1500'], freqs=freqs, n_cycles=n_cycles,
-                                    picks = picks_perhead, return_itc=False)
+power_onset_perhead_vr = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles=n_cycles,
+                                    picks = pick_orig, return_itc=False)
 # NEED to pass picks because default IGNORES SEEG channels
-power_onset_perhead_vr.plot_topo(picks=plot_picks_perhead, baseline=(-2., -1.5), mode='logratio', layout=box)
+power_onset_perhead_vr.plot_topo(picks=plot_pick_orig, baseline=(-2., -1.5), mode='logratio', layout=box)
 
 ## BIPORAL
 picks_bip = mnehelp.def_picks(epochs_bip_vr['onsets_500_1500'])
