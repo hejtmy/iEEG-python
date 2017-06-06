@@ -16,7 +16,6 @@ path_unity_events = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\
 path_onset_events = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\p136_onsets.csv"
 path_montage = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\p136_montage.csv"
 
-
 FREQUENCY = 250
 
 # Loading Unnity data
@@ -50,21 +49,12 @@ epochs_original_vr["pointingEnded_Ego", "pointingEnded_Allo"].plot(block=True, s
 freqs = np.arange(2, 30, 1)
 n_cycles = freqs / 2
 
-pick_orig = mnehelp.def_picks(epochs_original_vr['pointingEnded_Ego'])
-box = mnehelp.custom_box_layout(pick_orig)
-plot_pick_orig = range(0, len(pick_orig))
+pick_orig_hip = mnehelp.picks_all_localised(epochs_original_vr['pointingEnded_Ego'], pd_montage, 'Hi')
 
-power_onset_perhead_vr = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles=n_cycles,
-                                    picks = pick_orig, return_itc=False)
+box = mnehelp.custom_box_layout(pick_orig_hip)
+plot_pick_orig_hip = range(0, len(pick_orig_hip))
+
+power_point_orig_hip_vr = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles=n_cycles,
+                                    picks = pick_orig_hip, return_itc=False)
 # NEED to pass picks because default IGNORES SEEG channels
-power_onset_perhead_vr.plot_topo(picks=plot_pick_orig, baseline=(-2., -1.5), mode='logratio', layout=box)
-
-## BIPORAL
-picks_bip = mnehelp.def_picks(epochs_bip_vr['onsets_500_1500'])
-box_bip = mnehelp.custom_box_layout(picks_bip)
-plot_picks_bip = range(0, len(picks_bip))
-power_onset_bip_vr = tfr_morlet(epochs_bip_vr['onsets_500_1500'], freqs=freqs, n_cycles=n_cycles, picks=picks_bip,
-                                return_itc=False)
-
-power_onset_bip_vr.plot_topo(picks=plot_picks_bip, baseline=(-2., -1.5), mode='logratio', layout=box_bip)
-
+power_point_orig_hip_vr.plot_topo(picks=plot_pick_orig_hip, baseline=(-2., -1.5), mode='logratio', layout=box)
