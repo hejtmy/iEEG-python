@@ -1,7 +1,7 @@
 from functions import read_eeg as eegrd
 from functions import read_experiment_data as exprd
+from functions import helpers
 import numpy as np
-import pandas as pd
 
 def load_raw(data_path, frequency):
     data = eegrd.read_mat(data_path)
@@ -9,10 +9,9 @@ def load_raw(data_path, frequency):
     raw = eegrd.numpy_mne(data, frequency)
     return raw
 
-
 def load_matlab_events(events_path):
     pd_events = exprd.read_events(events_path)
-    pd_events = pd_events.drop(['Unnamed: 2'], 1)
+    pd_events = helpers.remove_unnamed(pd_events)
     return(pd_events)
 
 def load_unity_events(events_path):
