@@ -1,5 +1,6 @@
 import mne
 import numpy as np
+import pandas as pd
 
 from functions import mne_prepping as mneprep
 from functions import mne_helpers as mnehelp
@@ -20,19 +21,23 @@ FREQUENCY = 250
 # Loading Unnity data
 raw_perhead_vr = mneprep.load_raw(path_perhead_vr, FREQUENCY)
 raw_bip_vr = mneprep.load_raw(path_bip_vr, FREQUENCY)
-mne_events_vr, mapp_vr = mneprep.load_events(path_onset_events, FREQUENCY)
+
+pd_unity_events = mneprep.load_unity_events(path_unity_events)
+pd_matlab_events = mneprep.load_matlab_events(path_onset_events)
+pd_events = pd.concat([pd_unity_events, pd_matlab_events])
+pd_events = mneprep.clear_pd(pd_events)
+pd_events = mneprep.solve_duplicates(pd_events, FREQUENCY)
+mne_events_vr, mapp_vr = mneprep.pd_to_mne_events(pd_events, FREQUENCY)
 
 # loading BVA data
 raw_perhead_bva = mneprep.load_raw(path_perhead_bva, FREQUENCY)
-raw_bip_bva = mneprep.load_raw(path_bip_bva, FREQUENCY)
+#raw_bip_bva = mneprep.load_raw(path_bip_bva, FREQUENCY)
 mne_events_bva, mapp_bva = mneprep.load_events(path_events_bva, FREQUENCY)
 
 # {'ArduinoPulseStop': blue, 'onsets_500_1500': green, 'stops_500_1500': red}
-raw_perhead_vr.plot(events=mne_events_vr, scalings='auto', event_color={1: 'blue', 2: 'green', 3: 'red'})
-raw_bip_vr.plot(events=mne_events_vr, scalings='auto', event_color={1: 'blue', 2: 'green', 3: 'red'})
+raw_perhead_vr.plot(events = mne_events_vr, scalings='auto', event_color={1: 'blue', 2: 'green', 3: 'red'})
 
 raw_perhead_vr.info["bads"] = ['55', '56', '57', '58', '59']
-raw_bip_vr.info["bads"] = ['45', '46', '47', '48']
 
 # {'c': 1, 'f': 2, 'g': 3, 'onsets_500_1500': 4, 'stops_500_1500': 5}
 raw_perhead_bva.plot(events=mne_events_bva, scalings='auto',
