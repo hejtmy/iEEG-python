@@ -16,7 +16,8 @@ def load_matlab_events(events_path):
 
 def load_unity_events(events_path):
     pd_events = exprd.read_events(events_path)
-    pd_events = pd_events.drop(['trialIDs','Unnamed: 8'], 1)
+    pd_events = pd_events.drop(['trialIDs'], 1)
+    pd_events = helpers.remove_unnamed(pd_events)
     pd_events = pd_events.melt(id_vars = ['type'])
     pd_events['name'] = pd_events['variable'] + '_' + pd_events['type']
     pd_events = pd_events.drop(['type', 'variable'], 1)
