@@ -41,6 +41,7 @@ raw_original_vr.plot(events = mne_events_vr, scalings='auto')
 raw_bip_vr.plot(events=mne_events_vr, scalings='auto', event_color = {1: 'blue', 2: 'green', 3: 'red'})
 
 raw_original_vr.info["bads"] = ['47']
+raw_original_vr.info["bads"] = ['SEEG_47']
 
 ## Epoching
 epochs_original_vr = mne.Epochs(raw_original_vr, mne_events_vr, event_id=mapp_vr, tmin=-3, tmax=3, add_eeg_ref=False)
