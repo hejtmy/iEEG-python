@@ -8,6 +8,7 @@ from functions import mne_helpers as mnehelp
 from functions import read_eeg as readeegr
 
 from mne.stats import permutation_cluster_test
+from mne.time_frequency import psd_multitaper
 
 from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 
@@ -23,8 +24,8 @@ FREQUENCY = 250
 
 # Loading Unnity data
 raw_original_vr = mneprep.load_raw(path_original_vr, FREQUENCY)
-raw_perhead_vr = mneprep.load_raw(path_perhead_vr, FREQUENCY)
-raw_bip_vr = mneprep.load_raw(path_bip_vr, FREQUENCY)
+#raw_perhead_vr = mneprep.load_raw(path_perhead_vr, FREQUENCY)
+#raw_bip_vr = mneprep.load_raw(path_bip_vr, FREQUENCY)
 
 pd_unity_events = mneprep.load_unity_events(path_unity_events)
 pd_matlab_events = mneprep.load_matlab_events(path_onset_events)
@@ -38,9 +39,8 @@ pd_montage = readeegr.read_montage(path_montage)
 mne_events_vr, mapp_vr = mneprep.pd_to_mne_events(pd_events, FREQUENCY)
 
 raw_original_vr.plot(events = mne_events_vr, scalings='auto')
-raw_bip_vr.plot(events=mne_events_vr, scalings='auto', event_color = {1: 'blue', 2: 'green', 3: 'red'})
+#raw_perhead_vr.plot(events = mne_events_vr, scalings='auto')
 
-raw_original_vr.info["bads"] = ['47']
 raw_original_vr.info["bads"] = ['SEEG_47']
 
 ## Epoching
@@ -53,18 +53,27 @@ epochs_original_vr["pointingEnded_Ego", "pointingEnded_Allo"].plot(block=True, s
 freqs = np.arange(2, 30, 1)
 n_cycles = freqs / 2
 
-pick_orig_hip = mnehelp.picks_all_localised(epochs_original_vr['pointingEnded_Ego'], pd_montage, 'Hi')
+pick_orig_hip = mnehelp.picks_all_localised(epochs_original_vr, pd_montage, 'Hi')
+raw_original_vr.plot_psd(picks=pick_orig_hip)
 
-box = mnehelp.custom_box_layout(pick_orig_hip)
+box = mnehelp.custom_box_layout(pick_orig_hip, 5)
 plot_pick_orig_hip = range(0, len(pick_orig_hip))
 
 power_point_orig_hip_vr_ego = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles=n_cycles,
                                     picks = pick_orig_hip, return_itc=False)
 power_point_orig_hip_vr_allo = tfr_morlet(epochs_original_vr['pointingEnded_Allo'], freqs=freqs, n_cycles=n_cycles,
                                     picks = pick_orig_hip, return_itc=False)
+raw_original_vr.copy().pick_channels(['SEEG_47'])
+power_onset_orig_hip_vr = tfr_morlet(epochs_original_vr['onsets_500_1500'], freqs=freqs, n_cycles=n_cycles,
+                                    picks = pick_orig_hip, return_itc=False)
+power_stop_orig_hip_vr = tfr_morlet(epochs_original_vr['stops_500_1500'], freqs=freqs, n_cycles=n_cycles,
+                                    picks = pick_orig_hip, return_itc=False)
 
 power_point_orig_hip_vr_ego.plot_topo(picks=plot_pick_orig_hip, baseline=(-2., -1.5), mode='logratio', layout=box)
 power_point_orig_hip_vr_allo.plot_topo(picks=plot_pick_orig_hip, baseline=(-2., -1.5), mode='logratio', layout=box)
+
+power_onset_orig_hip_vr.plot_topo(picks=plot_pick_orig_hip, baseline=(-2., -1.5), mode='logratio', layout=box)
+power_stop_orig_hip_vr.plot_topo(picks=plot_pick_orig_hip, baseline=(-2., -1.5), mode='logratio', layout=box)
 
 power_trials_point_orig_hip_ego = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles=n_cycles,
                                     picks = pick_orig_hip, return_itc=False, average = False)
