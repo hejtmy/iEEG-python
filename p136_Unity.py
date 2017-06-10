@@ -13,17 +13,17 @@ from mne.time_frequency import psd_multitaper
 from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 
 #base_path = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\"
-base_path = "U:\\OneDrive\\FGU\\iEEG\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\"
+base_path = "U:\\OneDrive\\FGU\\iEEG\\p136\\"
 
-path_original_vr = base_path + "prep_256.mat"
-path_perhead_vr = base_path + "prep_perHeadbox_256.mat"
-path_bip_vr = base_path + "prep_bipolar_256.mat"
+path_original_vr = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\prep_256.mat"
+path_perhead_vr = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\prep_perHeadbox_256.mat"
+path_bip_vr = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\prep_bipolar_256.mat"
 
-path_unity_events = base_path + "p136_unity.csv"
-path_onset_events = base_path + "p136_onsets.csv"
-path_montage = base_path + "p136_montage.csv"
+path_unity_events = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p136_unity.csv"
+path_onset_events = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p136_onsets.csv"
+path_montage = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p136_montage.csv"
 
-FREQUENCY = 250
+FREQUENCY = 256
 
 # Loading Unnity data
 raw_original_vr = mneprep.load_raw(path_original_vr, FREQUENCY)
@@ -34,16 +34,13 @@ pd_unity_events = mneprep.load_unity_events(path_unity_events)
 pd_matlab_events = mneprep.load_matlab_events(path_onset_events)
 pd_events = pd.concat([pd_unity_events, pd_matlab_events])
 pd_events = mneprep.clear_pd(pd_events)
-pd_events = mneprep.solve_duplicates(pd_events, FREQUENCY)
 
 # loading montage
 pd_montage = readeegr.read_montage(path_montage)
-
 mne_events_vr, mapp_vr = mneprep.pd_to_mne_events(pd_events, FREQUENCY)
 
 raw_original_vr.plot(events = mne_events_vr, scalings='auto')
 #raw_perhead_vr.plot(events = mne_events_vr, scalings='auto')
-
 raw_original_vr.info["bads"] = ['SEEG_47']
 
 ## Epoching
