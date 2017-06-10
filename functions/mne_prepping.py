@@ -2,6 +2,7 @@ from functions import read_eeg as eegrd
 from functions import read_experiment_data as exprd
 from functions import helpers
 import numpy as np
+import pandas as pd
 
 def load_raw(data_path, frequency):
     data = eegrd.read_mat(data_path)
@@ -18,7 +19,7 @@ def load_unity_events(events_path):
     pd_events = exprd.read_events(events_path)
     pd_events = pd_events.drop(['trialIDs'], 1)
     pd_events = helpers.remove_unnamed(pd_events)
-    pd_events = pd_events.melt(id_vars = ['type'])
+    pd_events = pd.melt(pd_events, id_vars = ['type'])
     pd_events['name'] = pd_events['variable'] + '_' + pd_events['type']
     pd_events = pd_events.drop(['type', 'variable'], 1)
     pd_events = pd_events.rename(index=str, columns = {"value": "time"})
