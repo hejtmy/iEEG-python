@@ -12,13 +12,16 @@ from mne.time_frequency import psd_multitaper
 
 from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 
-path_original_vr = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\prep_256.mat"
-path_perhead_vr = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\prep_perHeadbox_256.mat"
-path_bip_vr = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\prep_bipolar_256.mat"
+#base_path = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\"
+base_path = "U:\\OneDrive\\FGU\\iEEG\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\"
 
-path_unity_events = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\p136_unity.csv"
-path_onset_events = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\p136_onsets.csv"
-path_montage = "D:\\IntracranialElectrodes\\Data\\p136\\UnityAlloEgo\\EEG\\Preprocessed\\p136_montage.csv"
+path_original_vr = base_path + "prep_256.mat"
+path_perhead_vr = base_path + "prep_perHeadbox_256.mat"
+path_bip_vr = base_path + "prep_bipolar_256.mat"
+
+path_unity_events = base_path + "p136_unity.csv"
+path_onset_events = base_path + "p136_onsets.csv"
+path_montage = base_path + "p136_montage.csv"
 
 FREQUENCY = 250
 
