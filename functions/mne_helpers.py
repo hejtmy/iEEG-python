@@ -19,7 +19,7 @@ def custom_box_layout(picks, ncol = 6):
     # Creates boundaries of the 0-1 box, will be
     box = (-.1, 1.1, -.1, 1.1)
     # just puts the channel names to strings
-    ch_names = ["{:d}".format(x) for x in picks]
+    ch_names = ["SEEG_{:d}".format(x) for x in picks]
     nrow = np.ceil(len(picks) / ncol)
     x, y = np.mgrid[0:1:(1/nrow), 0:1:(1/ncol)]
     xy = np.vstack([x.ravel(), y.ravel()]).T
