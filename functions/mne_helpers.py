@@ -15,19 +15,19 @@ def picks_localised(pd_montage, name):
     return pd_montage[name == pd_montage.headboxNumber].index
 
 # Creates box layout for non standard topological images (such as seeg)
-def custom_box_layout(picks, ncol = 6):
+# NEEDS channel names, unfortunately
+def custom_box_layout(ch_names, ncol = 6):
     # Creates boundaries of the 0-1 box, will be
-    box = (-.1, 1.1, -.1, 1.1)
+    box = (-0.1, 1.1, -0.1, 1.1)
     # just puts the channel names to strings
-    ch_names = ["SEEG_{:d}".format(x) for x in picks]
-    nrow = np.ceil(len(picks) / ncol)
-    x, y = np.mgrid[0:1:(1/nrow), 0:1:(1/ncol)]
+    nrow = np.ceil(len(ch_names) / ncol)
+    x, y = np.mgrid[0:1:(1/ncol), 0:1:(1/nrow)]
     xy = np.vstack([x.ravel(), y.ravel()]).T
-    w, h = [(1/(2 * ncol)), 1/(2 * nrow)]
+    w, h = [1 / (1.1 * ncol), 1 / (1.1 * nrow)]
     w, h = [np.tile(i, xy.shape[0]) for i in [w, h]]
     pos = np.hstack([xy, w[:, None], h[:, None]])
-    # removes
-    pos = pos[:len(picks)]
-    ch_indices = range(len(picks))
+    # removes redundat column
+    pos = pos[:len(ch_names)]
+    ch_indices = range(len(ch_names))
     box_layout = Layout(box, pos, ch_names, ch_indices, 'box')
     return(box_layout)
