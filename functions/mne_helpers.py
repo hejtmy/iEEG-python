@@ -14,7 +14,7 @@ def picks_all(raw, where = None, pd_montage = None):
     return picks
 
 def picks_localised(pd_montage, name):
-    return pd_montage[name == pd_montage.headboxNumber].index
+    return pd_montage[name == pd_montage.neurologyLabel].index
 
 # Creates box layout for non standard topological images (such as seeg)
 # NEEDS channel names, unfortunately
