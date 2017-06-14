@@ -28,6 +28,7 @@ def load_unity_events(events_path):
     pd_events = pd_events.rename(index=str, columns = {"value": "time"})
     return pd_events
 
+
 def pd_to_mne_events(pd_events, frequency):
     event_types = pd_events.name.unique()
     event_nums = list(range(1,  event_types.size + 1))

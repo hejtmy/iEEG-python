@@ -1,6 +1,8 @@
 import mne
 from mne.channels.layout import Layout
+from functions import helpers
 import numpy as np
+import matplotlib.pyplot as plt
 
 def picks_all_localised(raw, pd_montage, where):
     all_channels = picks_all(raw)
@@ -31,3 +33,5 @@ def custom_box_layout(ch_names, ncol = 6):
     ch_indices = range(len(ch_names))
     box_layout = Layout(box, pos, ch_names, ch_indices, 'box')
     return(box_layout)
+
+
