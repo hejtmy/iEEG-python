@@ -8,6 +8,7 @@ def read_mat(path):
     data = mat['eeg'][()] #stores is as a numpy array - [()]
     return(data)
 
+
 def numpy_mne(data, frequency):
     n_channels = data.shape[0]
     ch_names = list(range(1, n_channels + 1))
@@ -17,7 +18,10 @@ def numpy_mne(data, frequency):
     raw = mne.io.RawArray(data, info)
     return(raw)
 
+
 def read_montage(path):
     pd_montage = pd.read_csv(path)
     pd_montage = helpers.remove_unnamed(pd_montage)
+    pd_montage.neurologyLabel = pd_montage.headboxNumber
+    pd_montage = pd_montage.drop('headboxNumber', axis = 1)
     return pd_montage
