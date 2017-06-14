@@ -49,20 +49,20 @@ power_all_perhead_vr = tfr_morlet(epochs_perhead_vr, freqs = freqs, n_cycles = n
 
 power_onset_perhead_vr = tfr_morlet(epochs_perhead_vr['onsets_500_1500'], freqs = freqs, n_cycles = n_cycles, picks = picks_perhead, return_itc = False)
 # NEED to pass picks because default IGNORES SEEG channels
-power_onset_perhead_vr.plot_topo(picks = plot_picks_perhead, baseline=(-2., -1.5), mode = 'logratio', layout = box)
+power_onset_perhead_vr.plot_topo(picks = plot_picks_perhead,  baseline=(-3, -2), mode = 'logratio', layout = box)
 
 power_onset_perhead_vr_divided = power_onset_perhead_vr
 power_onset_perhead_vr_divided.data = power_onset_perhead_vr.data/power_all_perhead_vr.data
-power_onset_perhead_vr_divided.plot_topo(picks = plot_picks_perhead, baseline=(-2., -1.5), mode = 'logratio', layout = box)
+power_onset_perhead_vr_divided.plot_topo(picks = plot_picks_perhead,  baseline=(-3, -2), mode = 'logratio', layout = box)
 
 power_stops_perhead_vr = tfr_morlet(epochs_perhead_vr['stops_500_1500'], freqs = freqs, n_cycles = n_cycles, picks = picks_perhead, return_itc = False)
 # NEED to pass picks because default IGNORES SEEG channels
-power_stops_perhead_vr.plot_topo(picks = plot_picks_perhead, baseline=(-2., -1.5), mode = 'logratio', layout = box)
+power_stops_perhead_vr.plot_topo(picks = plot_picks_perhead,  baseline=(-3, -2), mode = 'logratio', layout = box)
 
 ## BIPOLAR
 picks_bip = mnehelp.def_picks(epochs_bip_vr['onsets_500_1500'])
 box_bip =  mnehelp.custom_box_layout(picks_bip)
 plot_picks_bip = range(0, len(picks_bip))
-power_onset_bip_vr = tfr_morlet(epochs_bip_+vr['onsets_500_1500'], freqs = freqs, n_cycles=n_cycles, picks = picks_bip, return_itc = False)
+power_onset_bip_vr = tfr_morlet(epochs_bip_vr['onsets_500_1500'], freqs = freqs, n_cycles=n_cycles, picks = picks_bip, return_itc = False)
 
-power_onset_bip_vr.plot_topo(picks = plot_picks_bip, baseline=(-2., -1.5), mode = 'logratio', layout = box_bip)
+power_onset_bip_vr.plot_topo(picks = plot_picks_bip, baseline=(-3, -2), mode = 'logratio', layout = box_bip)

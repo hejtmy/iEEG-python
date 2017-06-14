@@ -9,12 +9,15 @@ def picks_all_localised(raw, pd_montage, where):
     where_channels = picks_localised(pd_montage, where)
     return np.intersect1d(all_channels, where_channels)
 
+
 def picks_all(raw, where = None, pd_montage = None):
-    picks = mne.pick_types(raw.info, seeg = True, meg = True, eeg = False, stim = False, eog = True, exclude ='bads')
-    return picks
+    return mne.pick_types(raw.info, seeg = True, meg = True, eeg = False, 
+                           stim = False, eog = True, exclude ='bads')
+
 
 def picks_localised(pd_montage, name):
     return pd_montage[name == pd_montage.neurologyLabel].index
+
 
 # Creates box layout for non standard topological images (such as seeg)
 # NEEDS channel names, unfortunately
@@ -54,7 +57,7 @@ def plot_psd_epochs_separate(epochs, picks, names, fmin, fmax):
             color = helpers.random_matplotlib_color();
             print(channel)
             epochs.plot_psd(fmin = fmin, fmax = fmax,
-                      picks = [channel], color=color, show=False, ax=ax)    
+                      picks = [channel], color=color, show = False, ax = ax)    
             ax.lines[-1].set_linestyle(linestyle)
             channel_name = "%s-%s" % (names[idx], str(channel))
             pick_names.append(channel_name)
@@ -67,6 +70,7 @@ def plot_psd_epochs(epochs, picks, names, fmin, fmax):
     ax = plt.axes()
     for idx, pick in enumerate(picks):
         epochs.plot_psd(fmin = fmin, fmax = fmax,
-                      picks = pick, color=helpers.random_matplotlib_color(), show=False, ax=ax)
+                      picks = pick, color = helpers.random_matplotlib_color(), 
+                      show = False, ax = ax)
     ax.set_title('Plot')
     plt.legend(ax.lines, names)
