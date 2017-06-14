@@ -14,3 +14,16 @@ def random_matplotlib_color():
     r = lambda: random.randint(0,255)
     rgb = (r()/255, r()/255,r()/255)
     return tuple(rgb)
+
+def int_to_linestyle(num):
+    mapp = {
+        0 : '-',
+        1 : '--',
+        2 : '-.',
+        3 : ':',
+        4 : 'None'
+    }
+    if num > 4: return '-'
+    return mapp[num]
+
+    
