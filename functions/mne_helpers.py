@@ -35,3 +35,38 @@ def custom_box_layout(ch_names, ncol = 6):
     return(box_layout)
 
 
+## PLOTS
+def plot_theta_epochs(epochs, picks, names):
+    plot_psd_epochs(epochs, picks, names, 1, 8)
+
+
+def plot_theta_epochs_separate(epochs, picks, names):
+    plot_psd_epochs_separate(epochs, picks, names, 1, 8)
+
+
+def plot_psd_epochs_separate(epochs, picks, names, fmin, fmax):
+    pick_names = []
+    plt.figure()
+    ax = plt.axes()
+    for idx, pick in enumerate(picks):
+        linestyle = helpers.int_to_linestyle(idx)
+        for channel in pick:
+            color = helpers.random_matplotlib_color();
+            print(channel)
+            epochs.plot_psd(fmin = fmin, fmax = fmax,
+                      picks = [channel], color=color, show=False, ax=ax)    
+            ax.lines[-1].set_linestyle(linestyle)
+            channel_name = "%s-%s" % (names[idx], str(channel))
+            pick_names.append(channel_name)
+    ax.set_title('Plot')
+    plt.legend(ax.lines, pick_names)
+
+
+def plot_psd_epochs(epochs, picks, names, fmin, fmax):
+    plt.figure()
+    ax = plt.axes()
+    for idx, pick in enumerate(picks):
+        epochs.plot_psd(fmin = fmin, fmax = fmax,
+                      picks = pick, color=helpers.random_matplotlib_color(), show=False, ax=ax)
+    ax.set_title('Plot')
+    plt.legend(ax.lines, names)
