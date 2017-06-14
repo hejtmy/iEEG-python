@@ -47,16 +47,19 @@ raw_original_vr.info["bads"] = ['SEEG_47']
 ## Epoching
 epochs_original_vr = mne.Epochs(raw_original_vr, mne_events_vr, event_id=mapp_vr, tmin=-3, tmax=3, add_eeg_ref=False)
 
+# PICKS
+pick_orig_hip = mnehelp.picks_all_localised(raw_original_vr, pd_montage, 'Hi')
+pick_orig_hip_names = mne.pick_info(raw_original_vr.info, pick_orig_hip)['ch_names']
+pick_orig_ins = mnehelp.picks_all_localised(raw_original_vr, pd_montage, 'Ins')
+pick_orig_all = mnehelp.picks_all(raw_original_vr)
+
 # TIME FREQ
 freqs = np.arange(2, 30, 1)
 n_cycles = freqs / 2
 
-pick_orig_hip = mnehelp.picks_all_localised(raw_original_vr, pd_montage, 'Hi')
-raw_original_vr.plot_psd(picks=pick_orig_hip)
-
-pick_orig_hip_names = mne.pick_info(raw_original_vr.info, pick_orig_hip)['ch_names']
 box = mnehelp.custom_box_layout(pick_orig_hip_names, 3)
 plot_pick_orig_hip = range(len(pick_orig_hip))
+
 #PLOTS
 epochs_original_vr['onsets_500_1500', 'stops_500_1500'].plot(picks = pick_orig_hip, block=True, scalings='auto')
 epochs_original_vr["pointingEnded_Ego", "pointingEnded_Allo"].plot(block=True, scalings='auto')
@@ -86,7 +89,7 @@ power_trials_point_orig_hip_allo = tfr_morlet(epochs_original_vr['pointingEnded_
 power_trials_point_orig_hip_ego.apply_baseline(mode='ratio', baseline=(None, 0))
 power_trials_point_orig_hip_allo.apply_baseline(mode='ratio', baseline=(None, 0))
 
-
+## PERMUTATIONS TESTS
 epochs_power_1 = power_trials_point_orig_hip_ego.data[:, 0, :, :]  # only 1 channel as 3D matrix
 epochs_power_2 = power_trials_point_orig_hip_allo.data[:, 0, :, :]  # only 1 channel as 3D matrix
 
@@ -114,3 +117,15 @@ plt.ylabel('Frequency (Hz)')
 plt.title('Induced power ()')
 
 plt.show()
+
+# POWER ESTIMATES
+raw_original_vr.plot_psd(picks=pick_orig_hip)
+
+mnehelp.plot_theta_epochs(epochs_original_vr['onsets_500_1500'], 
+                          [pick_orig_hip, pick_orig_ins], ['Hippocampus', 'Insula'])
+
+mnehelp.plot_theta_epochs(epochs_original_vr['onsets_500_1500'], 
+                          [pick_orig_hip, pick_orig_all], ['Hippocampus', 'All'])
+
+mnehelp.plot_theta_epochs(epochs_original_vr['stops_500_1500'], 
+                          [pick_orig_hip, pick_orig_ins], ['Hippocampus', 'Insula'])
