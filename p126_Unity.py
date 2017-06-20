@@ -10,8 +10,8 @@ from functions import read_eeg as readeegr
 from mne.stats import permutation_cluster_test
 from mne.time_frequency import psd_multitaper, tfr_multitaper, tfr_stockwell, tfr_morlet
 
-#base_path = "D:\\IntracranialElectrodes\\Data\\p126\\"
-base_path = "U:\\OneDrive\\FGU\\iEEG\\p126\\"
+base_path = "D:\\IntracranialElectrodes\\Data\\p126\\"
+#base_path = "U:\\OneDrive\\FGU\\iEEG\\p126\\"
 
 path_original_vr = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\prep_250.mat"
 path_bip_vr = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\prep_bipolar_250.mat"
@@ -53,14 +53,19 @@ n_cycles = freqs / 2
 
 picks_original = mnehelp.picks_all(epochs_original_vr)
 picks_hi = mnehelp.picks_all_localised(epochs_original_vr, pd_montage, 'Hi')
-box = mnehelp.custom_box_layout(picks_original, 8)
+pick_ch_names = mne.pick_info(raw_original_vr.info, picks_original)['ch_names']
+box = mnehelp.custom_box_layout(pick_ch_names, 8)
 plot_picks_perhead = range(0, len(picks_original))
 
+
+picks_hi = mnehelp.picks_all_localised(epochs_original_vr, pd_montage, 'Hi')
+pick_ch_names = mne.pick_info(raw_original_vr.info, picks_hi)['ch_names']
+box = mnehelp.custom_box_layout(picks_hi, 8)
 power_original_point_ego_vr = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles=n_cycles,
-                                    picks=picks_original, return_itc=False)
+                                    picks=picks_hi, return_itc=False)
 
 # NEED to pass picks because default IGNORES SEEG channels
-power_original_point_ego_vr.plot_topo(picks=plot_picks_perhead, baseline=(-3, -2), mode='logratio', layout=box)
+power_original_point_ego_vr.plot_topo(picks = 1, baseline=(-3, -2), mode='logratio', layout=box)
 
 conditions = ["pointingEnded_Ego", "pointingEnded_Allo"]
 evoked_dict = dict()

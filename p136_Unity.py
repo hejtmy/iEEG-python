@@ -55,7 +55,7 @@ pick_orig_all = mnehelp.picks_all(raw_original_vr)
 
 # TIME FREQ
 freqs = np.arange(2, 30, 1)
-n_cycles = freqs / 2
+n_cycles = 6
 
 box = mnehelp.custom_box_layout(pick_orig_hip_names, 3)
 plot_pick_orig_hip = range(len(pick_orig_hip))
@@ -68,7 +68,6 @@ power_point_orig_hip_vr_ego = tfr_morlet(epochs_original_vr['pointingEnded_Ego']
                                     picks = pick_orig_hip, return_itc=False)
 power_point_orig_hip_vr_allo = tfr_morlet(epochs_original_vr['pointingEnded_Allo'], freqs=freqs, n_cycles=n_cycles,
                                     picks = pick_orig_hip, return_itc=False)
-raw_original_vr.copy().pick_channels(['SEEG_47'])
 
 power_onset_orig_hip_vr = tfr_morlet(epochs_original_vr['onsets_500_1500'], freqs=freqs, n_cycles = n_cycles,
                                     picks = pick_orig_hip, return_itc=False)
