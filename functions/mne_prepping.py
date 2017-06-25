@@ -20,7 +20,7 @@ def load_matlab_events(events_path):
 
 def load_unity_events(events_path):
     pd_events = exprd.read_events(events_path)
-    pd_events = pd_events.drop(['trialIDs'], 1)
+    pd_events = pd_events.drop(['trialIDs', 'pointingError'], 1)
     pd_events = helpers.remove_unnamed(pd_events)
     pd_events = pd.melt(pd_events, id_vars = ['type'])
     pd_events['name'] = pd_events['variable'] + '_' + pd_events['type']
