@@ -91,7 +91,9 @@ def plot_psd_epochs_sep_box(epochs, picks, fmin, fmax, pick_names = [], event_na
     plt.show()
 
 
-def plot_psd_epochs(epochs, picks, fmin, fmax, pick_names = [], event_names = []):
+def plot_psd_epochs(epochs, picks, fmin, fmax, tmin = [], tmax = [], pick_names = [], event_names = []):
+    tmin, tmax = tmax_tmin_fill(epochs, tmin, tmax)
+    
     plt.figure()
     ax = plt.axes()
     final_names = []
@@ -124,3 +126,10 @@ def create_pick_name(i, pick_names):
         return pick_names[i]
     else: 
         return 'electrodes' + str(i)
+    
+def tmax_tmin_fill(epochs, tmin, tmax):
+    if tmax == []:
+        tmax = epochs.tmax
+    if tmin == []:
+        tmin = epochs.tmin
+    return tmin, tmax
