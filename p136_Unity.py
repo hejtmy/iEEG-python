@@ -1,14 +1,11 @@
 import mne
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 from functions import mne_prepping as mneprep
 from functions import mne_helpers as mnehelp
 from functions import read_eeg as readeegr
-
-from mne.stats import permutation_cluster_test
-from mne.time_frequency import psd_multitaper
+from functions import mne_stats as mnestats
 
 from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 from mne.minimum_norm import read_inverse_operator, source_band_induced_power
@@ -98,6 +95,8 @@ power_point_orig_hip_vr_allo.plot_topo(picks = plot_pick_orig_hip, baseline=(-3,
 power_onset_orig_hip_vr.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
 power_stop_orig_hip_vr.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
 
+
+#event X electrode X freqs X time
 power_trials_point_orig_hip_ego = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles = n_cycles,
                                     picks = pick_orig_hip, return_itc = False, average = False)
 power_trials_point_orig_hip_allo = tfr_morlet(epochs_original_vr['pointingEnded_Allo'], freqs = freqs, n_cycles = n_cycles,
@@ -124,3 +123,7 @@ for pick in list(pick_orig_hip):
 
 for pick in list(pick_orig_hip):
     mnehelp.plot_psd_epochs([epochs_original_vr['stops_500_1500'], epochs_original_vr['onsets_500_1500']], [[pick]],  1, 8,  0, 1.5, ['Hippocampus' + str(pick)], ['stops_500_1500', 'onsets_500_1500'])
+
+wilcox_allo_ego = mnestats.wilcox_tfr_power(power_point_orig_hip_vr_ego, power_point_orig_hip_vr_allo)
+
+mnestats.plot_wilcox(wilcox_allo_ego, 0, 256)
