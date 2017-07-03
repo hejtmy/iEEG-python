@@ -25,6 +25,7 @@ def get_dropped_epoch_indices(ls):
     drop_indices = [i for i, x in enumerate(rm_ignored) if x == ['USER']]
     return(drop_indices)
 
+
 # Creates box layout for non standard topological images (such as seeg)
 # NEEDS channel names, unfortunately
 def custom_box_layout(ch_names, ncol = 6):
@@ -126,7 +127,8 @@ def create_pick_name(i, pick_names):
         return pick_names[i]
     else: 
         return 'electrodes' + str(i)
-    
+
+
 def tmax_tmin_fill(epochs, tmin, tmax):
     if tmax == []:
         tmax = epochs.tmax
