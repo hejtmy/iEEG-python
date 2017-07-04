@@ -100,10 +100,16 @@ lfo_bands = [[2, 4], [4, 9]]
 power_point_orig_hip_vr_ego_lfo = mnehelp.band_power(power_point_orig_hip_vr_ego, lfo_bands)
 power_point_orig_hip_vr_allo_lfo = mnehelp.band_power(power_point_orig_hip_vr_allo, lfo_bands)
 
+power_trial_point_orig_hip_vr_ego_lfo = mnehelp.band_power(power_trials_point_orig_hip_ego, lfo_bands)
+power_trial_point_orig_hip_vr_allo_lfo = mnehelp.band_power(power_trials_point_orig_hip_allo, lfo_bands)
 
 ## PLOTS
 power_point_orig_hip_vr_ego.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
 power_point_orig_hip_vr_allo.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
+
+power_point_orig_hip_vr_ego_lfo.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
+power_point_orig_hip_vr_allo_lfo.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
+
 
 power_onset_orig_hip_vr.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
 power_stop_orig_hip_vr.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
@@ -132,8 +138,12 @@ for pick in list(pick_orig_hip):
 for pick in list(pick_orig_hip):
     mnehelp.plot_psd_epochs([epochs_original_vr['stops_500_1500'], epochs_original_vr['onsets_500_1500']], [[pick]],  1, 8,  0, 1.5, ['Hippocampus' + str(pick)], ['stops_500_1500', 'onsets_500_1500'])
 
-
 wilcox_allo_ego, wilcox_freqs = mnestats.wilcox_tfr_power(power_trials_point_orig_hip_ego, power_trials_point_orig_hip_allo)
+
+wilcox_allo_ego_lfo, wilcox_freqs_lfo = mnestats.wilcox_tfr_power(power_trial_point_orig_hip_vr_ego_lfo, power_trial_point_orig_hip_vr_allo_lfo)
+
+mnestats.plot_wilcox_box(wilcox_allo_ego, 256, freqs = wilcox_freqs)
+mnestats.plot_wilcox_box(wilcox_allo_ego_lfo, 256, freqs = wilcox_freqs_lfo)
 
 mnestats.plot_wilcox(wilcox_allo_ego, 0, 256)
 for channel in range(len(pick_orig_hip)):
