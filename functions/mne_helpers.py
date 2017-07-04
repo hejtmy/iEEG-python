@@ -32,7 +32,7 @@ def custom_box_layout(ch_names, ncol = 6):
     # Creates boundaries of the 0-1 box, will be
     box = (-0.1, 1.1, -0.1, 1.1)
     # just puts the channel names to strings
-    nrow = np.ceil(len(ch_names) / ncol)
+    nrow, ncol = helpers.nrow_ncol(len(ch_names), ncol = 6)
     x, y = np.mgrid[0:1:(1/ncol), 0:1:(1/nrow)]
     xy = np.vstack([x.ravel(), y.ravel()]).T
     w, h = [1 / (1.1 * ncol), 1 / (1.1 * nrow)]
@@ -137,24 +137,52 @@ def tmax_tmin_fill(epochs, tmin, tmax):
     return tmin, tmax
 
 
-# Tfr is a tfr object calculated by MNE tfr functions
+# reverses to Channel X Frequency X Time X Events
+def reverse_tfr_list(ls):
+    rev_ls = np.swapaxes(ls, 0, 3)
+    rev_ls = np.swapaxes(rev_ls, 0, 2)
+    rev_ls = np.swapaxes(rev_ls, 1, 0)
+    return(rev_ls)
+
+
+# returns 0s given by length of first three elements of list for Wilcox Channel X Frequency X time
+def instantiate_tfr_zero_list(ls):
+    a, b, c = len(ls), len(ls[0]), len(ls[0][0])
+    zeros = [[[0 for x in range(c)] for y in range(b)] for z in range(a)]
+    return(zeros)
+
+# Tfr is a tfr object calculated by MNE tfr functions - CAN be averaged or not
 # Bands need to be in a list of bottom inclusive touples
 # e.g. lfo = [[2, 4],[4, 9]] will select bands [2, 3] and [4, 8]
 # if You want inclusive you can select 
 def band_power(tfr, bands = []):
+    if len(tfr.data.shape) not in [3, 4]:
+        print("This doesn¨t look like a TFR file. Dimensions are not correct")
+        return None
+    is_averaged = len(tfr.data.shape) == 3
+    # at what index is the freq dimension/axis
+    if is_averaged:
+        dim_freq = 1
+    else:
+        dim_freq = 2
+        
     new_data = []
     new_freqs = []
     for band in bands:
         #finds indices of these freqs
-        bottom = np.where(tfr.freqs >= band[0])[0][0]
-        top = np.where(tfr.freqs < band[1])[0][-1]
+        i_bottom = np.where(tfr.freqs >= band[0])[0][0]
+        i_top = np.where(tfr.freqs < band[1])[0][-1]
         #tfr data are channel, freq, time - selecting all freqs of given band
-        mean_band_power = tfr.data[:, bottom:(top + 1), :]
-        mean_band_power = mean_band_power.mean(1, keepdims = True)
+        if is_averaged:
+            frequency_data = tfr.data[:, i_bottom:(i_top + 1), :]
+        else:
+            frequency_data = tfr.data[:, :, i_bottom:(i_top + 1), :]
+        mean_band_power = frequency_data.mean(dim_freq, keepdims = True)
         new_data.append(mean_band_power)
-        new_freqs.append(bottom)
-    band_power = np.concatenate(new_data, 1)
+        new_freqs.append(band[0])
+        
     band_tfr = tfr.copy()
-    band_tfr.data = band_power
+    #combiine band powers along th efrequency axis
+    band_tfr.data = np.concatenate(new_data, dim_freq)
     band_tfr.freqs = np.asarray(new_freqs)
     return band_tfr
