@@ -10,6 +10,8 @@ from functions import mne_stats as mnestats
 from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 from mne.minimum_norm import read_inverse_operator, source_band_induced_power
 
+################### PREPARATION ----------------------------------
+
 base_path = "D:\\IntracranialElectrodes\\Data\\p136\\"
 #base_path = "U:\\OneDrive\\FGU\\iEEG\\p136\\"
 
@@ -24,7 +26,7 @@ path_montage = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p136_montage.csv"
 FREQUENCY = 256
 
 # loading montage
-pd_montage = readeegr.read_montage(path_montage)
+pd_montage = readeegr.read_montage(path_montage) 
 
 # Loading Unity data
 raw_original_vr = mneprep.load_raw(path_original_vr, FREQUENCY, pd_montage)
@@ -38,8 +40,8 @@ pd_events = mneprep.clear_pd(pd_events)
 mne_events_vr, mapp_vr = mneprep.pd_to_mne_events(pd_events, FREQUENCY)
 
 ##PLOTS
-raw_original_vr.plot(events = mne_events_vr, scalings='auto')
-raw_perhead_vr.plot(events = mne_events_vr, scalings='auto')
+#raw_original_vr.plot(events = mne_events_vr, scalings='auto')
+#raw_perhead_vr.plot(events = mne_events_vr, scalings='auto')
 raw_original_vr.info["bads"] = ['SEEG_47']
 
 ## Epoching
@@ -58,48 +60,54 @@ bad_epochs = [10, 42, 51, 52, 74, 82, 92, 93, 114, 129, 130, 131, 161, 165, 181,
               397, 398, 427, 435, 438, 450, 461, 489, 490, 491, 492, 493, 494, 499, 518]
 epochs_original_vr.drop(bad_epochs)
 epochs_perhead_vr.drop(bad_epochs)
-epochs_original_vr.plot(block = True, scalings = 'auto', picks=pick_orig_hip)
+#epochs_original_vr.plot(block = True, scalings = 'auto', picks=pick_orig_hip)
 
 epochs_onsets_stops = epochs_original_vr['onsets_500_1500', 'stops_500_1500']
 # can be obtained with mnehelp.get_dropped_epoch_indices(epochs_onsets_stops.drop_log)
 # bad_onset_epochs = [41, 42, 57, 63, 64, 69, 70, 82, 108, 144, 165, 172, 173, 186, 201, 204, 215, 226, 227, 228]
 # epochs_onsets_stops.drop(bad_onset_epochs)
-epochs_onsets_stops.plot(picks = pick_orig_hip, block = True, scalings = 'auto')
+# epochs_onsets_stops.plot(picks = pick_orig_hip, block = True, scalings = 'auto')
 
 epochs_pointing_allo_ego = epochs_original_vr["pointingEnded_Ego", "pointingEnded_Allo"]
-epochs_pointing_allo_ego.plot(picks = pick_orig_hip, block = True, scalings = 'auto')
+#epochs_pointing_allo_ego.plot(picks = pick_orig_hip, block = True, scalings = 'auto')
 # can be obtained with mnehelp.get_dropped_epoch_indices(epochs_pointing_allo_ego.drop_log)
 # bad_point_epochs = [1, 3, 22, 24, 30, 31, 33]
 # epochs_pointing_allo_ego.drop(bad_point_epochs)
 
+########### ANALYSES ----------------------------------
+
 # TIME FREQ
-freqs = np.arange(2, 10, .5)
+freqs = np.arange(2, 11, 1)
 n_cycles = 6
 box = mnehelp.custom_box_layout(pick_orig_hip_names, 3)
 plot_pick_orig_hip = range(len(pick_orig_hip))
 
 power_point_orig_hip_vr_ego = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles=n_cycles,
                                     picks = pick_orig_hip, return_itc=False)
-power_point_orig_hip_vr_allo = tfr_morlet(epochs_original_vr['pointingEnded_Allo'], freqs=freqs, n_cycles=n_cycles,
-                                    picks = pick_orig_hip, return_itc=False)
+power_point_orig_hip_vr_allo = tfr_morlet(epochs_original_vr['pointingEnded_Allo'], freqs=freqs, n_cycles=n_cycles,picks = pick_orig_hip, return_itc=False)
 
 power_onset_orig_hip_vr = tfr_morlet(epochs_original_vr['onsets_500_1500'], freqs = freqs, n_cycles = n_cycles,
                                     picks = pick_orig_hip, return_itc = False)
 power_stop_orig_hip_vr = tfr_morlet(epochs_original_vr['stops_500_1500'], freqs = freqs, n_cycles = n_cycles,
                                     picks = pick_orig_hip, return_itc = False)
 
+#event X electrode X freqs X time
+power_trials_point_orig_hip_ego = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles = n_cycles,picks = pick_orig_hip, return_itc = False, average = False)
+power_trials_point_orig_hip_allo = tfr_morlet(epochs_original_vr['pointingEnded_Allo'], freqs = freqs, n_cycles = n_cycles,picks = pick_orig_hip, return_itc = False, average = False)
+
+### LFO BANDS
+lfo_bands = [[2, 4], [4, 9]]
+power_point_orig_hip_vr_ego_lfo = mnehelp.band_power(power_point_orig_hip_vr_ego, lfo_bands)
+power_point_orig_hip_vr_allo_lfo = mnehelp.band_power(power_point_orig_hip_vr_allo, lfo_bands)
+
+
+## PLOTS
 power_point_orig_hip_vr_ego.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
 power_point_orig_hip_vr_allo.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
 
 power_onset_orig_hip_vr.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
 power_stop_orig_hip_vr.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
 
-
-#event X electrode X freqs X time
-power_trials_point_orig_hip_ego = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles = n_cycles,
-                                    picks = pick_orig_hip, return_itc = False, average = False)
-power_trials_point_orig_hip_allo = tfr_morlet(epochs_original_vr['pointingEnded_Allo'], freqs = freqs, n_cycles = n_cycles,
-                                    picks = pick_orig_hip, return_itc = False, average = False)
 
 power_trials_point_orig_hip_ego.apply_baseline(mode='ratio', baseline=(None, 0))
 power_trials_point_orig_hip_allo.apply_baseline(mode='ratio', baseline=(None, 0))
@@ -125,19 +133,8 @@ for pick in list(pick_orig_hip):
     mnehelp.plot_psd_epochs([epochs_original_vr['stops_500_1500'], epochs_original_vr['onsets_500_1500']], [[pick]],  1, 8,  0, 1.5, ['Hippocampus' + str(pick)], ['stops_500_1500', 'onsets_500_1500'])
 
 
-power_point_orig_hip_vr_ego_trials = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles=n_cycles,
-                                    picks = pick_orig_hip, average=False, return_itc=False)
-power_point_orig_hip_vr_allo_trials = tfr_morlet(epochs_original_vr['pointingEnded_Allo'], freqs=freqs, n_cycles=n_cycles,
-                                    picks = pick_orig_hip, average=False, return_itc=False)
-
-power_point_orig_hip_vr_ego_trials = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles=n_cycles,
-                                    picks = pick_orig_hip, average=False, return_itc=False)
-power_point_orig_hip_vr_allo_trials = tfr_morlet(epochs_original_vr['pointingEnded_Allo'], freqs=freqs, n_cycles=n_cycles,
-                                    picks = pick_orig_hip, average=False, return_itc=False)
-
-
-wilcox_allo_ego = mnestats.wilcox_tfr_power(power_point_orig_hip_vr_ego_trials, power_point_orig_hip_vr_allo_trials)
+wilcox_allo_ego, wilcox_freqs = mnestats.wilcox_tfr_power(power_trials_point_orig_hip_ego, power_trials_point_orig_hip_allo)
 
 mnestats.plot_wilcox(wilcox_allo_ego, 0, 256)
 for channel in range(len(pick_orig_hip)):
-    mnestats.plot_wilcox(wilcox_allo_ego, channel, 256)
+    mnestats.plot_wilcox(wilcox_allo_ego, channel, 256, freqs = wilcox_freqs)
