@@ -135,3 +135,26 @@ def tmax_tmin_fill(epochs, tmin, tmax):
     if tmin == []:
         tmin = epochs.tmin
     return tmin, tmax
+
+
+# Tfr is a tfr object calculated by MNE tfr functions
+# Bands need to be in a list of bottom inclusive touples
+# e.g. lfo = [[2, 4],[4, 9]] will select bands [2, 3] and [4, 8]
+# if You want inclusive you can select 
+def band_power(tfr, bands = []):
+    new_data = []
+    new_freqs = []
+    for band in bands:
+        #finds indices of these freqs
+        bottom = np.where(tfr.freqs >= band[0])[0][0]
+        top = np.where(tfr.freqs < band[1])[0][-1]
+        #tfr data are channel, freq, time - selecting all freqs of given band
+        mean_band_power = tfr.data[:, bottom:(top + 1), :]
+        mean_band_power = mean_band_power.mean(1, keepdims = True)
+        new_data.append(mean_band_power)
+        new_freqs.append(bottom)
+    band_power = np.concatenate(new_data, 1)
+    band_tfr = tfr.copy()
+    band_tfr.data = band_power
+    band_tfr.freqs = np.asarray(new_freqs)
+    return band_tfr
