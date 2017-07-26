@@ -20,7 +20,8 @@ def wilcox_tfr_power(tfr1, tfr2):
             for i_time, timestamp in enumerate(frequency):
                 time_res = ranksums(events1[i_ch][i_freq][i_time], events2[i_ch][i_freq][i_time])
                 # returns positive p values and negative p values
-                wilcox_table[i_ch][i_freq][i_time] = time_res.pvalue * (time_res.statistic/abs(time_res.statistic)) # converts statistic to -+ 1 depending on the direction
+                sign = 1 if time_res.statistic > 0 else -1
+                wilcox_table[i_ch][i_freq][i_time] = time_res.pvalue * sign  # converts statistic to -+ 1 depending on the direction
     wilcox_table = np.asarray(wilcox_table)
     return wilcox_table, freqs
 
