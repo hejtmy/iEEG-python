@@ -1,4 +1,5 @@
 import mne
+from matplotlib import gridspec
 from mne.channels.layout import Layout
 from functions import helpers
 import numpy as np
@@ -32,7 +33,7 @@ def custom_box_layout(ch_names, ncol = 6):
     # Creates boundaries of the 0-1 box, will be
     box = (-0.1, 1.1, -0.1, 1.1)
     # just puts the channel names to strings
-    nrow, ncol = helpers.nrow_ncol(len(ch_names), ncol = 6)
+    nrow, ncol = helpers.nrow_ncol(len(ch_names), ncol = ncol)
     x, y = np.mgrid[0:1:(1/ncol), 0:1:(1/nrow)]
     xy = np.vstack([x.ravel(), y.ravel()]).T
     w, h = [1 / (1.1 * ncol), 1 / (1.1 * nrow)]
@@ -49,15 +50,25 @@ def custom_box_layout(ch_names, ncol = 6):
 
 #frequency is in indes at this time
 # picks are in indices of already computed 
-def plot_power_time(tfrs, pick, frequency, pick_names = [], event_names = []):
+def plot_power_time(tfrs, picks, frequency, pick_names = [], event_names = [], ncol = 3):
     # find the frequency index
-    plt.figure()
-    ax = plt.axes()
-    for i, event_tfr in enumerate(tfrs):
-        ax.plot(event_tfr.times, event_tfr.data[pick, frequency, :])
-    ax.set_title('Power over time')
-    plt.legend(ax.lines, event_names)
+    nplots = len(picks) + 1 #last will be legend
+    nrow, ncol = helpers.nrow_ncol(nplots, ncol)
+    gs = gridspec.GridSpec(nrow, ncol)
+    fig = plt.figure()
+    for i, pick in enumerate(picks):
+        ax = fig.add_subplot(gs[i])
+        for n, event_tfr in enumerate(tfrs):
+            ax.plot(event_tfr.times, event_tfr.data[i, frequency, :], label = event_names[n])
+            ax.legend([create_pick_name(i, pick_names)])
+    # adds legend
+    ax = fig.add_subplot(gs[nplots - 1])
+    for n, _ in enumerate(tfrs):
+        ax.plot([0], label = event_names[n])
+        handles, labels = ax.get_legend_handles_labels()
+    plt.legend(handles, labels)
     plt.show()
+    
     
 def plot_psd_epochs_separate(epochs, picks, fmin, fmax, pick_names = [], event_names = []):
     plt.figure()
@@ -107,7 +118,6 @@ def plot_psd_epochs_sep_box(epochs, picks, fmin, fmax, pick_names = [], event_na
 
 def plot_psd_epochs(epochs, picks, fmin, fmax, tmin = [], tmax = [], pick_names = [], event_names = []):
     tmin, tmax = tmax_tmin_fill(epochs, tmin, tmax)
-    
     plt.figure()
     ax = plt.axes()
     final_names = []
