@@ -20,7 +20,7 @@ def numpy_mne(data, frequency, montage = None):
             print("Montage has differnet number of channels {} that are in the data {}".format(str(montage.shape[0]), str(data.shape[0])))
             return numpy_mne(data, frequency)
         ch_types = montage.signalType
-        ch_names = [ch_type + "_" + str(ch_nums[i]) for i, ch_type in enumerate(ch_types)]
+        ch_names = [ch_type + "_" + str(montage.numberOnAmplifier[i]) for i, ch_type in enumerate(ch_types)]
         ch_types = [mne_type(type.lower()) for type in ch_types]
     info = mne.create_info(ch_names = ch_names, sfreq = frequency, ch_types = ch_types)
     raw = mne.io.RawArray(data, info)
