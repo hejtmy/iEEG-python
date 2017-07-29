@@ -46,6 +46,19 @@ def custom_box_layout(ch_names, ncol = 6):
 
 
 ## PLOTS
+
+#frequency is in indes at this time
+# picks are in indices of already computed 
+def plot_power_time(tfrs, pick, frequency, pick_names = [], event_names = []):
+    # find the frequency index
+    plt.figure()
+    ax = plt.axes()
+    for i, event_tfr in enumerate(tfrs):
+        ax.plot(event_tfr.times, event_tfr.data[pick, frequency, :])
+    ax.set_title('Power over time')
+    plt.legend(ax.lines, event_names)
+    plt.show()
+    
 def plot_psd_epochs_separate(epochs, picks, fmin, fmax, pick_names = [], event_names = []):
     plt.figure()
     ax = plt.axes()
@@ -82,8 +95,8 @@ def plot_psd_epochs_sep_box(epochs, picks, fmin, fmax, pick_names = [], event_na
             pick_name = create_pick_name(idx, pick_names)
             color = pick_colors[idx]
             for channel in pick:
-                event_epoch.plot_psd(fmin = fmin, fmax = fmax,
-                          picks = [channel], color = color, show = False, ax = ax)
+                axarr[i, idx] = event_epoch.plot_psd(fmin = fmin, fmax = fmax,
+                          picks = [channel], color = color, show = False)
                 ax.lines[-1].set_linestyle(linestyle)
                 channel_name = "%s-%s: %s" % (pick_name, str(channel), event_name)
                 channel_names.append(channel_name)
