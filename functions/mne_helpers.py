@@ -5,6 +5,7 @@ from functions import helpers
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def picks_all_localised(raw, pd_montage, where):
     all_channels = picks_all(raw)
     where_channels = picks_localised(pd_montage, where)
@@ -59,7 +60,7 @@ def plot_power_time(tfrs, picks, frequency, pick_names = [], event_names = [], n
     for i, pick in enumerate(picks):
         ax = fig.add_subplot(gs[i])
         for n, event_tfr in enumerate(tfrs):
-            ax.plot(event_tfr.times, event_tfr.data[i, frequency, :], label = event_names[n])
+            ax.plot(event_tfr.times, event_tfr.data[pick, frequency, :], label = event_names[n])
             ax.legend([create_pick_name(i, pick_names)])
     # adds legend
     ax = fig.add_subplot(gs[nplots - 1])
