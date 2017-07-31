@@ -25,167 +25,90 @@ path_onset_events = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p136_onsets.cs
 path_montage = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p136_montage.csv"
 path_montage_referenced = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p136_montage_referenced.csv"
 
+
 FREQUENCY = 256
-
-# loading montage
-pd_montage = readeegr.read_montage(path_montage) 
-pd_montage_referenced  = readeegr.read_montage(path_montage_referenced) 
-
-# Loading Unity data
-raw_original_vr = mneprep.load_raw(path_original_vr, FREQUENCY, pd_montage)
-raw_perhead_vr = mneprep.load_raw(path_perhead_vr, FREQUENCY, pd_montage_referenced)
-#raw_perelectrode_vr = mneprep.load_raw(path_perhead_vr, FREQUENCY, pd_montage_referenced)
-#raw_bip_vr = mneprep.load_raw(path_bip_vr, FREQUENCY)
-
-pd_unity_events = mneprep.load_unity_events(path_unity_events)
-pd_matlab_events = mneprep.load_matlab_events(path_onset_events)
-pd_events = pd.concat([pd_unity_events, pd_matlab_events])
-pd_events = mneprep.clear_pd(pd_events)
-mne_events_vr, mapp_vr = mneprep.pd_to_mne_events(pd_events, FREQUENCY)
-
-##PLOTS
-#raw_original_vr.plot(events = mne_events_vr, scalings='auto')
-#raw_perhead_vr.plot(events = mne_events_vr, scalings='auto')
-raw_original_vr.info["bads"] = ['SEEG_47']
-
-##
-raw_original_vr = raw_perhead_vr
-pd_montage = pd_montage_referenced
-
-## Epoching
-epochs_original_vr = mne.Epochs(raw_original_vr, mne_events_vr, event_id = mapp_vr, tmin = -3, tmax = 3, add_eeg_ref = False)
-epochs_perhead_vr = mne.Epochs(raw_perhead_vr, mne_events_vr, event_id = mapp_vr, tmin = -3, tmax = 3, add_eeg_ref = False)
+runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/base_setup.py', wdir='M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python')
 
 # PICKS
-pick_orig_hip = mnehelp.picks_all_localised(raw_original_vr, pd_montage, 'Hi')
-pick_orig_hip_names = mne.pick_info(raw_original_vr.info, pick_orig_hip)['ch_names']
-pick_orig_ins = mnehelp.picks_all_localised(raw_original_vr, pd_montage, 'Ins')
-pick_orig_all = mnehelp.picks_all(raw_original_vr)
+pick_perhead_hip = mnehelp.picks_all_localised(raw_perhead_vr, pd_montage_referenced, 'Hi')
+pick_perhead_hip_names = mne.pick_info(raw_perhead_vr.info, pick_perhead_hip)['ch_names']
+pick_perhead_ins = mnehelp.picks_all_localised(raw_perhead_vr, pd_montage_referenced, 'Ins')
+pick_perhead_all = mnehelp.picks_all(raw_perhead_vr)
 
 # BAD EPOCHS
 bad_epochs_original = [10, 42, 51, 52, 74, 82, 92, 93, 114, 129, 130, 131, 161, 165, 181, 185, 222, 255, 268, 269, 275, 291, 299, 300, 301, 302, 311, 323, 324, 325, 326, 327, 328, 346, 347, 348, 349, 353, 366, 367, 368, 369, 370, 376,397, 398, 427, 435, 438, 450, 461, 489, 490, 491, 492, 493, 494, 499, 518]
 
-bad_epochs_perhead = [40, 41, 42, 74, 82, 92, 93, 114, 129, 130, 131, 161, 255, 268, 269, 275, 302, 324, 325, 326, 397, 398, 427, 435, 438, 461]
-bad_epochs_perhead = []
-epochs_original_vr.drop(bad_epochs_perhead)
+bad_epochs_perhead = [74, 92, 93, 114, 129, 130, 131, 161, 185, 255, 268, 269, 275, 302, 324, 325, 326, 366, 367, 368, 369, 370, 397, 398, 427, 435, 438, 461]
+epochs_perhead_vr.drop(bad_epochs_perhead)
+#epochs_perhead_vr.plot(block = True, scalings = 'auto', picks=pick_perhead_hip)
 #epochs_perhead_vr.drop(bad_epochs)
 #epochs_original_vr.plot(block = True, scalings = 'auto', picks=pick_orig_hip)
-
-epochs_onsets_stops = epochs_original_vr['onsets_500_1500', 'stops_500_1500']
-# can be obtained with mnehelp.get_dropped_epoch_indices(epochs_onsets_stops.drop_log)
-# bad_onset_epochs = [41, 42, 57, 63, 64, 69, 70, 82, 108, 144, 165, 172, 173, 186, 201, 204, 215, 226, 227, 228]
-# epochs_onsets_stops.drop(bad_onset_epochs)
-# epochs_onsets_stops.plot(picks = pick_orig_hip, block = True, scalings = 'auto')
-
-epochs_pointing_allo_ego = epochs_original_vr["pointingEnded_Ego", "pointingEnded_Allo"]
-#epochs_pointing_allo_ego.plot(picks = pick_orig_hip, block = True, scalings = 'auto')
-# can be obtained with mnehelp.get_dropped_epoch_indices(epochs_pointing_allo_ego.drop_log)
-# bad_point_epochs = [1, 3, 22, 24, 30, 31, 33]
-# epochs_pointing_allo_ego.drop(bad_point_epochs)
 
 ########### ANALYSES ----------------------------------
 
 # TIME FREQ
+
 freqs = np.arange(2, 11, 1)
 n_cycles = 6
-box = mnehelp.custom_box_layout(pick_orig_hip_names, 3)
-plot_pick_orig_hip = range(len(pick_orig_hip))
+box = mnehelp.custom_box_layout(pick_perhead_hip_names, 3)
+plot_pick_perhead_hip = range(len(pick_perhead_hip))
 
-# POINTING
-power_point_orig_hip_vr_ego = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles=n_cycles, picks = pick_orig_hip, return_itc=False)
-power_point_orig_hip_vr_allo = tfr_morlet(epochs_original_vr['pointingEnded_Allo'], freqs=freqs, n_cycles=n_cycles,picks = pick_orig_hip, return_itc=False)
-
-power_trials_point_orig_hip_ego = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles = n_cycles,picks = pick_orig_hip, return_itc = False, average = False)
-power_trials_point_orig_hip_allo = tfr_morlet(epochs_original_vr['pointingEnded_Allo'], freqs = freqs, n_cycles = n_cycles,picks = pick_orig_hip, return_itc = False, average = False)
-
-# ONSETS
-power_onset_orig_hip_vr = tfr_morlet(epochs_original_vr['onsets_500_1500'], freqs = freqs, n_cycles = n_cycles, picks = pick_orig_hip, return_itc = False)
-power_stop_orig_hip_vr = tfr_morlet(epochs_original_vr['stops_500_1500'], freqs = freqs, n_cycles = n_cycles, picks = pick_orig_hip, return_itc = False)
-
-power_trials_onset_orig_hip_vr = tfr_morlet(epochs_original_vr['onsets_500_1500'], freqs = freqs, n_cycles = n_cycles, picks = pick_orig_hip, return_itc = False, average = False)
-power_trials_stop_orig_hip_vr = tfr_morlet(epochs_original_vr['stops_500_1500'], freqs = freqs, n_cycles = n_cycles, picks = pick_orig_hip, return_itc = False, average = False)
-
+runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/tfr_perhead_unity.py', wdir='M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python')
 
 ## BASELINES ----------------
-power_onset_orig_hip_vr.apply_baseline(mode = 'ratio', baseline = (-2, -1))
-power_stop_orig_hip_vr.apply_baseline(mode = 'ratio', baseline = (-2, -1))
-
-power_trials_onset_orig_hip_vr.apply_baseline(mode = 'ratio', baseline = (-2, -1))
-power_trials_stop_orig_hip_vr.apply_baseline(mode = 'ratio', baseline = (-2, -1))
-
-power_point_orig_hip_vr_ego.apply_baseline(mode = 'ratio', baseline = (-2, -1))
-power_point_orig_hip_vr_allo.apply_baseline(mode = 'ratio', baseline = (-2, -1))
-
-power_trials_point_orig_hip_ego.apply_baseline(mode = 'ratio', baseline = (-2, -1))
-power_trials_point_orig_hip_allo.apply_baseline(mode = 'ratio', baseline = (-2, -1))
+baseline = (-2, -1)
+runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/baselines.py', wdir='M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python')
 
 ### LFO BANDS
 lfo_bands = [[2, 4], [4, 9]]
-
-power_onset_orig_hip_vr_lfo = mnehelp.band_power(power_onset_orig_hip_vr, lfo_bands)
-power_stop_orig_hip_vr_lfo = mnehelp.band_power(power_stop_orig_hip_vr, lfo_bands)
-
-power_trials_onset_orig_hip_vr_lfo = mnehelp.band_power(power_trials_onset_orig_hip_vr, lfo_bands)
-power_trials_stop_orig_hip_vr_lfo = mnehelp.band_power(power_trials_stop_orig_hip_vr, lfo_bands)
-
-power_point_orig_hip_vr_ego_lfo = mnehelp.band_power(power_point_orig_hip_vr_ego, lfo_bands)
-power_point_orig_hip_vr_allo_lfo = mnehelp.band_power(power_point_orig_hip_vr_allo, lfo_bands)
-
-power_trial_point_orig_hip_vr_ego_lfo = mnehelp.band_power(power_trials_point_orig_hip_ego, lfo_bands)
-power_trial_point_orig_hip_vr_allo_lfo = mnehelp.band_power(power_trials_point_orig_hip_allo, lfo_bands)
+runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/lfo_collapse.py', wdir='M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python')
 
 ## PLOTS
-power_point_orig_hip_vr_ego.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
-power_point_orig_hip_vr_allo.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
+power_point_perhead_vr_ego.plot_topo(picks = pick_perhead_hip, baseline=baseline, mode='logratio', layout=box)
+power_point_perhead_vr_allo.plot_topo(picks = pick_perhead_hip, baseline=baseline, mode='logratio', layout=box)
 
-power_point_orig_hip_vr_ego_lfo.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
-power_point_orig_hip_vr_allo_lfo.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode='logratio', layout=box)
+power_point_perhead_vr_ego_lfo.plot_topo(picks = pick_perhead_hip, baseline=baseline, mode='logratio', layout=box)
+power_point_perhead_vr_allo_lfo.plot_topo(picks = pick_perhead_hip, baseline=baseline, mode='logratio', layout=box)
 
-power_onset_orig_hip_vr.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode = 'logratio', layout = box)
-power_stop_orig_hip_vr.plot_topo(picks = plot_pick_orig_hip, baseline=(-3, -2), mode = 'logratio', layout = box)
+power_onset_perhead_vr.plot_topo(picks = plot_pick_perhead_hip, baseline=(-3, -2), mode = 'logratio', layout = box)
+power_stop_perhead_vr.plot_topo(picks = plot_pick_perhead_hip, baseline=(-3, -2), mode = 'logratio', layout = box)
 
 
 ## POWER OVER TIME --------
-mnehelp.plot_power_time([power_stop_orig_hip_vr_lfo, power_onset_orig_hip_vr_lfo], range(len(pick_orig_hip)), 0, event_names = ['stop', 'onset'], pick_names = pick_orig_hip_names)
+mnehelp.plot_power_time([power_stop_perhead_vr_lfo, power_onset_perhead_vr_lfo], pick_perhead_hip, 0, event_names = ['stop', 'onset'], pick_names = pick_perhead_hip_names)
 
-mnehelp.plot_power_time([power_point_orig_hip_vr_ego_lfo, power_point_orig_hip_vr_allo_lfo], range(len(pick_orig_hip)), 1, event_names = ['ego', 'allo'], pick_names = pick_orig_hip_names)
+mnehelp.plot_power_time([power_point_perhead_vr_ego_lfo, power_point_perhead_vr_allo_lfo], pick_perhead_hip, 0, event_names = ['ego', 'allo'], pick_names = pick_perhead_hip_names)
 
+mnehelp.plot_power_time([power_point_perhead_vr_ego, power_point_perhead_vr_allo], pick_perhead_hip, 1, event_names = ['ego', 'allo'], pick_names = pick_perhead_hip_names)
 
-mnehelp.plot_power_time([power_point_orig_hip_vr_ego, power_point_orig_hip_vr_allo], range(len(pick_orig_hip)), 1, event_names = ['ego', 'allo'], pick_names = pick_orig_hip_names)
 
 # POWER ESTIMATES ----------
-raw_original_vr.plot_psd(picks = pick_orig_hip)
+raw_original_vr.plot_psd(picks = pick_perhead_hip)
 
-mnehelp.plot_psd_epochs([epochs_original_vr['onsets_500_1500']], [pick_orig_hip, pick_orig_ins], 1, 16, 0, 1.5, ['Hippocampus', 'Insula'], ['Onsets'])
+mnehelp.plot_psd_epochs([epochs_original_vr['onsets_500_1500']], [pick_perhead_hip, pick_perhead_ins], 1, 16, 0, 1.5, ['Hippocampus', 'Insula'], ['Onsets'])
 
-mnehelp.plot_psd_epochs([epochs_original_vr['onsets_500_1500']], [pick_orig_hip, pick_orig_all], 1, 8, ['Hippocampus', 'All'], ['Onsets'])
+mnehelp.plot_psd_epochs([epochs_original_vr['onsets_500_1500']], [pick_perhead_hip, pick_perhead_all], 1, 8, ['Hippocampus', 'All'], ['Onsets'])
 
-mnehelp.plot_psd_epochs([epochs_original_vr['stops_500_1500'], epochs_original_vr['onsets_500_1500']], [pick_orig_hip], 1, 16,  ['Hippocampus'], ['stops', 'onsets'])
+mnehelp.plot_psd_epochs([epochs_original_vr['stops_500_1500'], epochs_original_vr['onsets_500_1500']], [pick_perhead_hip], 1, 16,  ['Hippocampus'], ['stops', 'onsets'])
 
-mnehelp.plot_psd_epochs_separate([epochs_original_vr['stops_500_1500'], epochs_original_vr['onsets_500_1500']], [pick_orig_hip], 1, 16, ['Hippocampus'], ['stops', 'onsets'])
-mnehelp.plot_psd_epochs_separate([epochs_original_vr], [pick_orig_hip], 1, 16, ['Hippocampus'])
-
-
-for pick in list(pick_orig_hip):
-    mnehelp.plot_psd_epochs([epochs_original_vr['pointingEnded_Ego'], epochs_original_vr['pointingEnded_Allo']], [[pick]],  1, 8,  -1.5, 0, ['Hippocampus' + str(pick)], ['pointingEnded_Ego', 'pointingEnded_Allo'])
-
-for pick in list(pick_orig_hip):
-    mnehelp.plot_psd_epochs([epochs_original_vr['stops_500_1500'], epochs_original_vr['onsets_500_1500']], [[pick]],  1, 8,  0, 1.5, ['Hippocampus' + str(pick)], ['stops_500_1500', 'onsets_500_1500'])
-
+mnehelp.plot_psd_epochs_separate([epochs_original_vr['stops_500_1500'], epochs_original_vr['onsets_500_1500']], [pick_perhead_hip], 1, 16, ['Hippocampus'], ['stops', 'onsets'])
+mnehelp.plot_psd_epochs_separate([epochs_original_vr], [pick_perhead_hip], 1, 16, ['Hippocampus'])
 
 ## STATISTICS -------------------
 # POinting 
-wilcox_ego_allo, wilcox_freqs = mnestats.wilcox_tfr_power(power_trials_point_orig_hip_ego, power_trials_point_orig_hip_allo)
-wilcox_allo_ego_lfo, wilcox_freqs_lfo = mnestats.wilcox_tfr_power(power_trial_point_orig_hip_vr_ego_lfo, power_trial_point_orig_hip_vr_allo_lfo)
+wilcox_ego_allo, wilcox_freqs = mnestats.wilcox_tfr_power(power_trials_point_perhead_ego, power_trials_point_perhead_allo, picks = pick_perhead_hip_names)
+mnestats.plot_wilcox_box(wilcox_ego_allo, FREQUENCY, freqs = wilcox_freqs)
+
+wilcox_allo_ego_lfo, wilcox_freqs_lfo = mnestats.wilcox_tfr_power(power_trial_point_perhead_vr_ego_lfo, power_trial_point_perhead_vr_allo_lfo,  picks = pick_perhead_hip_names)
+mnestats.plot_wilcox_box(wilcox_allo_ego_lfo, FREQUENCY, pick_names = pick_perhead_hip_names)
 
 # Onsets
-wilcox_stops_onsets_lfo, wilcox_freqs_lfo = mnestats.wilcox_tfr_power(power_trials_stop_orig_hip_vr_lfo, power_trials_onset_orig_hip_vr_lfo)
-mnestats.plot_wilcox_box(wilcox_stops_onsets_lfo, 256, pick_names = pick_orig_hip_names)
+wilcox_stops_onsets_lfo, wilcox_freqs_lfo = mnestats.wilcox_tfr_power(power_trials_stop_perhead_hip_vr_lfo, power_trials_onset_perhead_hip_vr_lfo)
+mnestats.plot_wilcox_box(wilcox_stops_onsets_lfo, FREQUENCY, pick_names = pick_perhead_hip_names)
 
 
-mnestats.plot_wilcox_box(wilcox_allo_ego, 256, freqs = wilcox_freqs)
-mnestats.plot_wilcox_box(wilcox_allo_ego_lfo, 256, freqs = wilcox_freqs_lfo)
+mnestats.plot_wilcox_box(wilcox_ego_allo, 256, freqs = wilcox_freqs)
 
 mnestats.plot_wilcox(wilcox_allo_ego, 0, 256)
-for channel in range(len(pick_orig_hip)):
+for channel in range(len(pick_perhead_hip)):
     mnestats.plot_wilcox(wilcox_allo_ego, channel, 256, freqs = wilcox_freqs)
