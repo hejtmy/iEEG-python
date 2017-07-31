@@ -15,3 +15,6 @@ colors = dict(pointingEnded_Ego="Crimson", pointingEnded_Allo="CornFlowerBlue")
 mne.viz.plot_compare_evokeds(evoked_dict, picks=pick_perhead_hip, colors=colors)
 
 
+mnestats.plot_wilcox(wilcox_allo_ego, 0, 256)
+for channel in range(len(pick_perhead_hip)):
+    mnestats.plot_wilcox(wilcox_allo_ego, channel, 256, freqs = wilcox_freqs)

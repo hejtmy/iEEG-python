@@ -63,6 +63,7 @@ runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/baselines.py', wdir
 lfo_bands = [[2, 4], [4, 9]]
 runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/lfo_collapse.py', wdir='M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python')
 
+
 ## PLOTS
 power_point_perhead_vr_ego.plot_topo(picks = pick_perhead_hip, baseline=baseline, mode='logratio', layout=box)
 power_point_perhead_vr_allo.plot_topo(picks = pick_perhead_hip, baseline=baseline, mode='logratio', layout=box)
@@ -79,20 +80,8 @@ mnehelp.plot_power_time([power_stop_perhead_vr_lfo, power_onset_perhead_vr_lfo],
 
 mnehelp.plot_power_time([power_point_perhead_vr_ego_lfo, power_point_perhead_vr_allo_lfo], pick_perhead_hip, 0, event_names = ['ego', 'allo'], pick_names = pick_perhead_hip_names)
 
-mnehelp.plot_power_time([power_point_perhead_vr_ego, power_point_perhead_vr_allo], pick_perhead_hip, 1, event_names = ['ego', 'allo'], pick_names = pick_perhead_hip_names)
+mnehelp.plot_power_time([power_point_perhead_vr_ego, power_point_perhead_vr_allo], pick_perhead_hip, 0, event_names = ['ego', 'allo'], pick_names = pick_perhead_hip_names)
 
-
-# POWER ESTIMATES ----------
-raw_original_vr.plot_psd(picks = pick_perhead_hip)
-
-mnehelp.plot_psd_epochs([epochs_original_vr['onsets_500_1500']], [pick_perhead_hip, pick_perhead_ins], 1, 16, 0, 1.5, ['Hippocampus', 'Insula'], ['Onsets'])
-
-mnehelp.plot_psd_epochs([epochs_original_vr['onsets_500_1500']], [pick_perhead_hip, pick_perhead_all], 1, 8, ['Hippocampus', 'All'], ['Onsets'])
-
-mnehelp.plot_psd_epochs([epochs_original_vr['stops_500_1500'], epochs_original_vr['onsets_500_1500']], [pick_perhead_hip], 1, 16,  ['Hippocampus'], ['stops', 'onsets'])
-
-mnehelp.plot_psd_epochs_separate([epochs_original_vr['stops_500_1500'], epochs_original_vr['onsets_500_1500']], [pick_perhead_hip], 1, 16, ['Hippocampus'], ['stops', 'onsets'])
-mnehelp.plot_psd_epochs_separate([epochs_original_vr], [pick_perhead_hip], 1, 16, ['Hippocampus'])
 
 ## STATISTICS -------------------
 # POinting 
@@ -103,12 +92,5 @@ wilcox_allo_ego_lfo, wilcox_freqs_lfo = mnestats.wilcox_tfr_power(power_trial_po
 mnestats.plot_wilcox_box(wilcox_allo_ego_lfo, FREQUENCY, pick_names = pick_perhead_hip_names)
 
 # Onsets
-wilcox_stops_onsets_lfo, wilcox_freqs_lfo = mnestats.wilcox_tfr_power(power_trials_stop_perhead_hip_vr_lfo, power_trials_onset_perhead_hip_vr_lfo)
+wilcox_stops_onsets_lfo, wilcox_freqs_lfo = mnestats.wilcox_tfr_power(power_trials_stop_perhead_vr_lfo, power_trials_onset_perhead_vr_lfo, picks = pick_perhead_hip_names)
 mnestats.plot_wilcox_box(wilcox_stops_onsets_lfo, FREQUENCY, pick_names = pick_perhead_hip_names)
-
-
-mnestats.plot_wilcox_box(wilcox_ego_allo, 256, freqs = wilcox_freqs)
-
-mnestats.plot_wilcox(wilcox_allo_ego, 0, 256)
-for channel in range(len(pick_perhead_hip)):
-    mnestats.plot_wilcox(wilcox_allo_ego, channel, 256, freqs = wilcox_freqs)
