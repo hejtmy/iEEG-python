@@ -11,66 +11,67 @@ from mne.stats import permutation_cluster_test
 from mne.time_frequency import psd_multitaper, tfr_multitaper, tfr_stockwell, tfr_morlet
 
 base_path = "D:\\IntracranialElectrodes\\Data\\p126\\"
-#base_path = "U:\\OneDrive\\FGU\\iEEG\\p126\\"
+base_path = "U:\\OneDrive\\FGU\\iEEG\\p126\\"
 
 path_original_vr = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\prep_250.mat"
+path_perhead_vr = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\prep_perHeadbox_250.mat"
 path_bip_vr = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\prep_bipolar_250.mat"
 path_unity_events = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p126_unity.csv"
 path_onset_events = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p126_onsets.csv"
 path_montage = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p126_montage.csv"
+path_montage_referenced = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p126_montage_referenced.csv"
 
 FREQUENCY = 250
+runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/base_setup.py', wdir='M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python')
 
-# Loading Unnity data
-raw_original_vr = mneprep.load_raw(path_original_vr, FREQUENCY)
-raw_bip_vr = mneprep.load_raw(path_bip_vr, FREQUENCY)
+# PICKS
+pick_perhead_hip = mnehelp.picks_all_localised(raw_perhead_vr, pd_montage_referenced, 'Hi')
+pick_perhead_hip_names = mne.pick_info(raw_perhead_vr.info, pick_perhead_hip)['ch_names']
+pick_perhead_ins = mnehelp.picks_all_localised(raw_perhead_vr, pd_montage_referenced, 'Ins')
+pick_perhead_all = mnehelp.picks_all(epochs_perhead_vr)
 
-pd_unity_events = mneprep.load_unity_events(path_unity_events)
-pd_matlab_events = mneprep.load_matlab_events(path_onset_events)
-pd_events = pd.concat([pd_unity_events, pd_matlab_events])
-pd_events = mneprep.clear_pd(pd_events)
-mne_events_vr, mapp_vr = mneprep.pd_to_mne_events(pd_events, FREQUENCY)
-pd_montage = readeegr.read_montage(path_montage)
+# BAD EPOCHS
+#epochs_perhead_vr.plot(scalings = 'auto')
 
-raw_original_vr.plot(events = mne_events_vr, scalings='auto')
-
-# {'ArduinoPulseStop': blue, 'onsets_500_1500': green, 'stops_500_1500': red}
-raw_original_vr.plot(events = mne_events_vr, scalings='auto')
-
-raw_original_vr.info["bads"] = ['SEEG_55', 'SEEG_56', 'SEEG_57', 'SEEG_58', 'SEEG_59']
-
-## Epoching
-epochs_original_vr = mne.Epochs(raw_original_vr, mne_events_vr, event_id=mapp_vr, tmin=-3, tmax=3, add_eeg_ref=False, baseline=None)
-#epochs_bip_vr = mne.Epochs(raw_bip_vr, mne_events_vr, event_id=mapp_vr, tmin=-3, tmax=3, add_eeg_ref=False, baseline=None)
-
-epochs_original_vr['onsets_500_1500', 'stops_500_1500'].plot(block=True, scalings='auto')
-#epochs_bip_vr['onsets_500_1500', 'stops_500_1500'].plot(block=True, scalings='auto')
-
-epochs_original_vr['onsets_500_1500', 'stops_500_1500'].plot(block=True, scalings='auto')
-
-freqs = np.arange(2, 30, 1)
-n_cycles = freqs / 2
-
-picks_original = mnehelp.picks_all(epochs_original_vr)
-picks_hi = mnehelp.picks_all_localised(epochs_original_vr, pd_montage, 'Hi')
-pick_ch_names = mne.pick_info(raw_original_vr.info, picks_original)['ch_names']
-box = mnehelp.custom_box_layout(pick_ch_names, 8)
-plot_picks_perhead = range(0, len(picks_original))
+#epochs_perhead_vr.plot(block = True, scalings = 'auto', picks=pick_perhead_hip)
+#epochs_perhead_vr.plot(block = True, scalings = 'auto')
+#mnehelp.get_dropped_epoch_indices(epochs_perhead_vr.drop_log)
+bad_epochs = []
+epochs_perhead_vr.drop(bad_epochs)
 
 
-picks_hi = mnehelp.picks_all_localised(epochs_original_vr, pd_montage, 'Hi')
-pick_ch_names = mne.pick_info(raw_original_vr.info, picks_hi)['ch_names']
-box = mnehelp.custom_box_layout(picks_hi, 8)
-power_original_point_ego_vr = tfr_morlet(epochs_original_vr['pointingEnded_Ego'], freqs=freqs, n_cycles=n_cycles,
-                                    picks=picks_hi, return_itc=False)
+# TIME FREQ
 
-# NEED to pass picks because default IGNORES SEEG channels
-power_original_point_ego_vr.plot_topo(picks = 1, baseline=(-3, -2), mode='logratio', layout=box)
+freqs = np.arange(2, 11, 1)
+n_cycles = 6
+box = mnehelp.custom_box_layout(pick_perhead_hip_names, 3)
+plot_pick_perhead_hip = range(len(pick_perhead_hip))
 
-conditions = ["pointingEnded_Ego", "pointingEnded_Allo"]
-evoked_dict = dict()
-for condition in conditions:
-    evoked_dict[condition] = epochs_original_vr[condition].average()
+runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/tfr_perhead_unity.py', wdir='M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python')
 
-colors = dict(pointingEnded_Ego="Crimson", pointingEnded_Allo="CornFlowerBlue")
-mne.viz.plot_compare_evokeds(evoked_dict, picks=picks_hi, colors=colors)
+## BASELINES ----------------
+baseline = (-3, -2)
+runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/baselines.py', wdir='M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python')
+
+### LFO BANDS
+lfo_bands = [[2, 4], [4, 9]]
+runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/lfo_collapse.py', wdir='M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python')
+
+
+###
+power_onset_perhead_vr.plot_topo(picks = pick_perhead_hip, layout = box, baseline = (-2, -1))
+
+## POWER OVER TIME --------
+mnehelp.plot_power_time([power_stop_perhead_vr_lfo, power_onset_perhead_vr_lfo], pick_perhead_hip, 0, event_names = ['stop', 'onset'], pick_names = pick_perhead_hip_names)
+
+mnehelp.plot_power_time([power_point_perhead_vr_ego_lfo, power_point_perhead_vr_allo_lfo], pick_perhead_hip, 0, event_names = ['ego', 'allo'], pick_names = pick_perhead_hip_names)
+
+mnehelp.plot_power_time([power_point_perhead_vr_ego, power_point_perhead_vr_allo], pick_perhead_hip, 1, event_names = ['ego', 'allo'], pick_names = pick_perhead_hip_names)
+
+## STATISTICS
+wilcox_stop_onset_hip_lfo, wilcox_freqs = mnestats.wilcox_tfr_power(power_trials_stop_orig_vr_lfo, power_trials_onset_perhead_vr_lfo, picks = pick_perhead_hip_names)
+
+wilcox_ego_allo_hip_lfo, wilcox_freqs = mnestats.wilcox_tfr_power(power_trial_point_perhead_vr_ego_lfo, power_trial_point_perhead_vr_allo_lfo, picks = pick_perhead_hip_names)
+wilcox_ego_allo_hip, wilcox_freqs = mnestats.wilcox_tfr_power(power_trials_point_perhead_ego, power_trials_point_perhead_allo)
+
+

@@ -56,13 +56,12 @@ plot_pick_perhead_hip = range(len(pick_perhead_hip))
 runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/tfr_perhead_unity.py', wdir='M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python')
 
 ## BASELINES ----------------
-baseline = (-2, -1)
+baseline = (-3, -2)
 runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/baselines.py', wdir='M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python')
 
 ### LFO BANDS
 lfo_bands = [[2, 4], [4, 9]]
 runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/lfo_collapse.py', wdir='M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python')
-
 
 ## PLOTS
 power_point_perhead_vr_ego.plot_topo(picks = pick_perhead_hip, baseline=baseline, mode='logratio', layout=box)
