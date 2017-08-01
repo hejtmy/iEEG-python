@@ -8,15 +8,15 @@ from functions import read_eeg as readeegr
 
 from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 
-base_path = "D:\\IntracranialElectrodes\\Data\\p82\\"
-base_path = "U:\\OneDrive\\FGU\\iEEG\\p82\\"
+base_path = "D:\\IntracranialElectrodes\\Data\\p83\\"
+base_path = "U:\\OneDrive\\FGU\\iEEG\\p83\\"
 
-path_montage = base_path + "BVAAlloEgo\\EEG\\Preprocessed\\p82_montage.csv"
-path_montage_referenced = base_path + "BVAAlloEgo\\EEG\\Preprocessed\\p82_montage_referenced.csv"
+path_montage = base_path + "BVAAlloEgo\\EEG\\Preprocessed\\p83_montage.csv"
+path_montage_referenced = base_path + "BVAAlloEgo\\EEG\\Preprocessed\\p83_montage_referenced.csv"
 path_original_bva =  base_path + "BVAAlloEgo\\EEG\\Preprocessed\\prep_250.mat"
 path_perhead_bva = base_path + "BVAAlloEgo\\EEG\\Preprocessed\\prep_perHeadbox_250.mat"
 path_bip_bva =  base_path + "BVAAlloEgo\\EEG\\Preprocessed\\prep_bipolar_250.mat"
-path_events_bva = base_path + "BVAAlloEgo\\EEG\\Preprocessed\\p82_BVA.csv"
+path_events_bva = base_path + "BVAAlloEgo\\EEG\\Preprocessed\\p83_BVA.csv"
 
 FREQUENCY = 250
 
@@ -50,6 +50,8 @@ n_cycles = freqs / 2
 picks_perhead_hi = mnehelp.picks_all_localised(epochs_perhead_bva, pd_montage, 'Hi')
 box = mnehelp.custom_box_layout(picks_original, 8)
 plot_picks_original = range(0, len(picks_original))
+
+
 
 # NEED to pass picks because default IGNORES SEEG channels
 power_onset_original_bva.plot_topo(picks=plot_picks_original, baseline=(-3, -2), mode='logratio', layout=box)
