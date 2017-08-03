@@ -10,14 +10,20 @@ from functions import mne_plot_helpers as mneplothelp
 # TFR is event X electrode X freqs X time
 # Returns table and sued frequencies for laters
 # Wilcox table is Channel X time X freqs
-def wilcox_tfr_power(tfr1, tfr2, picks = None):
+def wilcox_tfr_power(tfr1_orig, tfr2_orig, picks = None, average = False):
+    tfr1 = tfr1_orig.copy()
+    tfr2 = tfr2_orig.copy()
     if picks is not None:
         tfr1.pick_channels(picks)
         tfr2.pick_channels(picks)
+    # reverse creates channel x freq X time X trials
+    if average:
+         tfr1.data = tfr1.data.mean(-3, keepdims = True)
+         tfr2.data = tfr1.data.mean(-3, keepdims = True)
     events1 = mnehelp.reverse_tfr_list(tfr1.data)
     events2 = mnehelp.reverse_tfr_list(tfr2.data)
     freqs = tfr2.freqs
-    # reverse creates channel x freq X time X trials
+    
     wilcox_table = mnehelp.instantiate_tfr_zero_list(events1)
     print("=" * len(wilcox_table))
     for i_ch, channel in enumerate(events1):
