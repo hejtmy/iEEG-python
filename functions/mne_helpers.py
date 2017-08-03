@@ -18,7 +18,7 @@ def picks_all(raw, where = None, pd_montage = None):
 
 
 def picks_localised(pd_montage, name):
-    return pd_montage[name == pd_montage.neurologyLabel].index
+    return pd_montage[pd_montage.neurologyLabel.str.contains(name)].index
 
 
 ##Droping epochs helpers
