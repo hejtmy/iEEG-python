@@ -10,8 +10,8 @@ power_point_perhead_vr_allo_lfo = mnehelp.band_power(power_point_perhead_vr_allo
 power_trial_point_perhead_vr_ego_lfo = mnehelp.band_power(power_trials_point_perhead_ego, lfo_bands)
 power_trial_point_perhead_vr_allo_lfo = mnehelp.band_power(power_trials_point_perhead_allo, lfo_bands)
 
-power_point_perhead_vr_ego_lfo = mnehelp.band_power(power_point_perhead_vr_ego, lfo_bands)
-power_point_perhead_vr_allo_lfo = mnehelp.band_power(power_point_perhead_vr_allo, lfo_bands)
+power_point_start_perhead_vr_ego_lfo = mnehelp.band_power(power_point_start_perhead_vr_ego, lfo_bands)
+power_point_start_perhead_vr_allo_lfo = mnehelp.band_power(power_point_start_perhead_vr_allo, lfo_bands)
 
-power_trial_point_start_perhead_hip_vr_ego_lfo = mnehelp.band_power(power_trials_point_perhead_ego, lfo_bands)
-power_trial_point_start_perhead_hip_vr_allo_lfo = mnehelp.band_power(power_trials_point_perhead_allo, lfo_bands)
+power_trial_point_start_perhead_vr_ego_lfo = mnehelp.band_power(power_trials_point_start_perhead_ego, lfo_bands)
+power_trial_point_start_perhead_vr_allo_lfo = mnehelp.band_power(power_trials_point_start_perhead_allo, lfo_bands)
