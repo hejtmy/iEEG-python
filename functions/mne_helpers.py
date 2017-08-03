@@ -71,6 +71,21 @@ def plot_power_time(tfrs, picks, frequency, pick_names = [], event_names = [], n
     plt.show()
     
     
+def plot_power_time_average(tfrs, picks, frequency, channel_name = [], event_names = [], ncol = 3):
+    # find the frequency index
+    nplots = len(picks) + 1 #last will be legend
+    nrow, ncol = helpers.nrow_ncol(nplots, ncol)
+    plt.figure()
+    ax = plt.axes()
+    for n, event_tfr in enumerate(tfrs):
+        data = event_tfr.data[picks, frequency, :]
+        data = np.average(data, 0).squeeze()
+        ax.plot(event_tfr.times, data, label = event_names[n])
+    ax.legend(channel_name)    
+    plt.legend()
+    plt.show()
+
+
 def plot_psd_epochs_separate(epochs, picks, fmin, fmax, pick_names = [], event_names = []):
     plt.figure()
     ax = plt.axes()
