@@ -16,8 +16,8 @@ power_point_perhead_vr_allo.apply_baseline(baseline = baseline, mode = mode)
 power_trials_point_perhead_ego.apply_baseline(baseline = baseline, mode = mode)
 power_trials_point_perhead_allo.apply_baseline(baseline = baseline, mode = mode)
 
-power_point_start_perhead_vr_ego.apply_baseline(baseline = baseline, mode = mode)
-power_point_start_perhead_vr_allo.apply_baseline(baseline = baseline, mode = mode)
+power_point_start_perhead_vr_ego.apply_baseline(baseline = onset_baseline, mode = mode)
+power_point_start_perhead_vr_allo.apply_baseline(baseline = onset_baseline, mode = mode)
 
-power_trials_point_start_perhead_ego.apply_baseline(baseline = baseline, mode = mode)
-power_trials_point_start_perhead_allo.apply_baseline(baseline = baseline, mode = mode)
+power_trials_point_start_perhead_ego.apply_baseline(baseline = onset_baseline, mode = mode)
+power_trials_point_start_perhead_allo.apply_baseline(baseline = onset_baseline, mode = mode)
