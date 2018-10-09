@@ -10,7 +10,7 @@ pd_montage = readeegr.read_montage(path_montage)
 pd_montage_referenced  = readeegr.read_montage(path_montage_referenced) 
 
 # Loading Unity data
-raw_original_vr = mneprep.load_raw(path_original_vr, FREQUENCY, pd_montage)
+#raw_original_vr = mneprep.load_raw(path_original_vr, FREQUENCY, pd_montage)
 raw_perhead_vr = mneprep.load_raw(path_perhead_vr, FREQUENCY, pd_montage_referenced)
 #raw_perelectrode_vr = mneprep.load_raw(path_perhead_vr, FREQUENCY, pd_montage_referenced)
 #raw_bip_vr = mneprep.load_raw(path_bip_vr, FREQUENCY)
