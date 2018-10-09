@@ -1,12 +1,9 @@
 import mne
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 
-from functions import mne_prepping as mneprep
 from functions import mne_helpers as mnehelp
 from functions import mne_plot_helpers as mneplothelp
-from functions import read_eeg as readeegr
 from functions import mne_stats as mnestats
 
 from mne.stats import permutation_cluster_test

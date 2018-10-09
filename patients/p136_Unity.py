@@ -1,10 +1,7 @@
 import mne
 import numpy as np
-import pandas as pd
-
-from functions import mne_prepping as mneprep
 from functions import mne_helpers as mnehelp
-from functions import read_eeg as readeegr
+
 from functions import mne_stats as mnestats
 from functions import mne_plot_helpers as mneplot
 

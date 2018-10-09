@@ -1,11 +1,8 @@
 import mne
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 
-from functions import mne_prepping as mneprep
 from functions import mne_helpers as mnehelp
-from functions import read_eeg as readeegr
 
 from mne.stats import permutation_cluster_test
 from mne.time_frequency import psd_multitaper, tfr_multitaper, tfr_stockwell, tfr_morlet

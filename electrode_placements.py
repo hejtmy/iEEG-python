@@ -5,9 +5,6 @@ from matplotlib import pyplot as plt
 from os import path as op
 
 import mne
-from mne.viz import ClickableImage  # noqa
-from mne.viz import plot_trans, snapshot_brain_montage
-
 
 print(__doc__)
 

@@ -4,6 +4,9 @@ Created on Mon Jul 31 13:02:25 2017
 
 @author: hejtm
 """
+from functions import read_eeg as readeegr
+from functions import mne_prepping as mneprep
+import pandas as pd
 
 # loading montage
 pd_montage = readeegr.read_montage(path_montage) 
