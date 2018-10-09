@@ -36,9 +36,12 @@ pick_perhead_ins = mnehelp.picks_all_localised(raw_perhead_vr, pd_montage_refere
 pick_perhead_all = mnehelp.picks_all(raw_perhead_vr)
 
 # BAD EPOCHS
-bad_epochs_original = [10, 42, 51, 52, 74, 82, 92, 93, 114, 129, 130, 131, 161, 165, 181, 185, 222, 255, 268, 269, 275, 291, 299, 300, 301, 302, 311, 323, 324, 325, 326, 327, 328, 346, 347, 348, 349, 353, 366, 367, 368, 369, 370, 376,397, 398, 427, 435, 438, 450, 461, 489, 490, 491, 492, 493, 494, 499, 518]
+bad_epochs_original = [10, 42, 51, 52, 74, 82, 92, 93, 114, 129, 130, 131, 161, 165, 181, 185, 222, 255, 268, 269,
+                       275, 291, 299, 300, 301, 302, 311, 323, 324, 325, 326, 327, 328, 346, 347, 348, 349, 353, 366,
+                       367, 368, 369, 370, 376,397, 398, 427, 435, 438, 450, 461, 489, 490, 491, 492, 493, 494, 499, 518]
 
-bad_epochs_perhead = [74, 92, 93, 114, 129, 130, 131, 161, 185, 255, 268, 269, 275, 302, 324, 325, 326, 366, 367, 368, 369, 370, 397, 398, 427, 435, 438, 461]
+bad_epochs_perhead = [74, 92, 93, 114, 129, 130, 131, 161, 185, 255, 268, 269, 275, 302, 324, 325, 326, 366, 367, 368,
+                      369, 370, 397, 398, 427, 435, 438, 461]
 epochs_perhead_vr.drop(bad_epochs_perhead)
 #epochs_perhead_vr.plot(block = True, scalings = 'auto', picks=pick_perhead_hip)
 #epochs_perhead_vr.drop(bad_epochs)
@@ -80,7 +83,6 @@ mnehelp.plot_power_time([power_stop_perhead_vr_lfo, power_onset_perhead_vr_lfo],
 mnehelp.plot_power_time([power_point_perhead_vr_ego_lfo, power_point_perhead_vr_allo_lfo], pick_perhead_hip, 0, event_names = ['ego', 'allo'], pick_names = pick_perhead_hip_names)
 
 mnehelp.plot_power_time([power_point_perhead_vr_ego, power_point_perhead_vr_allo], pick_perhead_hip, 0, event_names = ['ego', 'allo'], pick_names = pick_perhead_hip_names)
-
 
 ## STATISTICS -------------------
 # POinting 
