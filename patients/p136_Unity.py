@@ -23,7 +23,6 @@ path_onset_events = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p136_onsets.cs
 path_montage = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p136_montage.csv"
 path_montage_referenced = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p136_montage_referenced.csv"
 
-
 FREQUENCY = 256
 runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/base_setup.py', wdir='M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python')
 

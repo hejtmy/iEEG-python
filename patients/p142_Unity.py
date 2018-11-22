@@ -31,7 +31,6 @@ pick_perhead_ent = mnehelp.picks_all_localised(raw_perhead_vr, pd_montage_refere
 pick_perhead_ent_names = mne.pick_info(raw_perhead_vr.info, pick_perhead_ent)['ch_names']
 pick_perhead_all = mnehelp.picks_all(raw_perhead_vr)
 
-
 # BAD EPOCHS
 #epochs_perhead_vr.plot(scalings = 'auto')
 
