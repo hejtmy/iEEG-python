@@ -10,7 +10,7 @@ import pandas as pd
 
 # loading montage
 pd_montage = readeegr.read_montage(path_montage) 
-pd_montage_referenced  = readeegr.read_montage(path_montage_referenced) 
+pd_montage_referenced = readeegr.read_montage(path_montage_referenced) 
 
 # Loading Unity data
 raw_original_vr = mneprep.load_raw(path_original_vr, FREQUENCY, pd_montage)

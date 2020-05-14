@@ -10,7 +10,6 @@ from functions import mne_stats as mnestats
 from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 from mne.minimum_norm import read_inverse_operator, source_band_induced_power
 
-
 base_path = "D:\\IntracranialElectrodes\\Data\\p129\\"
 base_path = "U:\\OneDrive\\FGU\\iEEG\\p129\\"
 
