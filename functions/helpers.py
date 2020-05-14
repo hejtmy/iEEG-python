@@ -2,6 +2,7 @@ import numpy as np
 import random
 from math import sqrt
 
+
 def remove_unnamed(pd_dataframe):
     cols = [c for c in pd_dataframe.columns if 'Unnamed' not in c]
     return pd_dataframe[cols]
@@ -18,7 +19,8 @@ def random_matplotlib_color():
     rgb = (r()/255, r()/255,r()/255)
     return tuple(rgb)
 
-# helpúer for matplotlib lines and iterating through generation of graphs
+
+# helper for matplotlib lines and iterating through generation of graphs
 def int_to_linestyle(num):
     mapp = {
         0 : '-',
