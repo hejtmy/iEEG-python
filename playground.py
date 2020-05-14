@@ -32,17 +32,19 @@ pd_events = mneprep.clear_pd(pd_events)
 mne_events_vr, mapp_vr = mneprep.pd_to_mne_events(pd_events, frequency)
 
 # Epoching
-epochs_perhead_vr = mne.Epochs(raw_perhead_vr, mne_events_vr, event_id = mapp_vr, tmin = -3, tmax = 3)
+epochs_perhead_vr = mne.Epochs(raw_perhead, mne_events_vr, event_id=mapp_vr,
+                               tmin=-3, tmax=3)
 
 # PICKS
-pick_perhead_hip = mnehelp.picks_all_localised(raw_perhead_vr, pd_montage_referenced, 'Hi')
-pick_perhead_hip_names = mne.pick_info(raw_perhead_vr.info, pick_perhead_hip)['ch_names']
-pick_perhead_ins = mnehelp.picks_all_localised(raw_perhead_vr, pd_montage_referenced, 'Ins')
-pick_perhead_all = mnehelp.picks_all(raw_perhead_vr)
-
+pick_perhead_hip = mnehelp.picks_all_localised(raw_perhead, pd_montage_referenced, 'Hi')
+pick_perhead_hip_names = mne.pick_info(raw_perhead.info, pick_perhead_hip)['ch_names']
+pick_perhead_ins = mnehelp.picks_all_localised(raw_perhead, pd_montage_referenced, 'Ins')
+pick_perhead_all = mnehelp.picks_all(raw_perhead)
 
 # Playing
-raw_original.plot()
+raw_original.plot(scalings={'seeg': 1e2, 'ecg': 1e2, 'misc': 1e2})
+raw_original.plot_psd(fmax=100, picks=['seeg'], average=False)
+
 raw_perhead.plot()
 raw_perelectrode.plot()
 raw_bipolar.plot()
