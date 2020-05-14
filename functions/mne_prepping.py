@@ -5,9 +5,9 @@ import numpy as np
 import pandas as pd
 
 
-def load_raw(data_path, frequency, montage = None):
+def load_raw(data_path, frequency, montage=None):
     data = eegrd.read_mat(data_path)
-    data = data * 1e-09  # because of stupid scaling
+    data = data * 1e-06  # because of stupid scaling
     raw = eegrd.numpy_mne(data, frequency, montage)
     return raw
 
