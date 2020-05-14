@@ -1,30 +1,40 @@
 import mne
-import numpy as np
+# import numpy as np
 import pandas as pd
 
 from functions import mne_prepping as mneprep
 from functions import mne_helpers as mnehelp
 from functions import read_eeg as readeegr
-from functions import mne_stats as mnestats
+# from functions import mne_stats as mnestats
 from functions import paths
 
-from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
+# from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 
-base_path = 'E:\OneDrive\FGU\iEEG\Data'
+base_path = 'E:/OneDrive/FGU/iEEG/Data'
+participant = 'p129'
+file_paths = paths.prep_unity_alloego_files(base_path, participant)
 
+frequency = paths.get_frequency(paths.eeg_path(paths.unity_alloego_path(base_path, participant)))
 
+# loading montage
+pd_montage = readeegr.read_montage(file_paths['montage']['original']) 
+pd_montage_referenced = readeegr.read_montage(file_paths['montage']['referenced']) 
 
-path_original_vr = base_path + "\\UnityAlloEgo\\EEG\\Preprocessed\\prep_256.mat"
-path_perhead_vr = base_path + "\\UnityAlloEgo\\EEG\\Preprocessed\\prep_perHeadbox_256.mat"
-path_bip_vr = base_path + "\\UnityAlloEgo\\EEG\\Preprocessed\\prep_bipolar_256.mat"
-path_perelectrode_vr = base_path + "\\UnityAlloEgo\\EEG\\Preprocessed\\prep_perElectrode_256.mat"
-path_unity_events = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p129_unity.csv"
-path_onset_events = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p129_onsets.csv"
-path_montage = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p129_montage.csv"
-path_montage_referenced = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p129_montage_referenced.csv"
+# Loading Unity data
+raw_original_vr = mneprep.load_raw(file_paths['EEG']['base'], frequency, pd_montage)
+raw_perhead_vr = mneprep.load_raw(file_paths['EEG']['perHeadbox'], frequency, pd_montage_referenced)
+raw_perelectrode_vr = mneprep.load_raw(file_paths['EEG']['perElectrode'], frequency, pd_montage_referenced)
+raw_bipolar_vr = mneprep.load_raw(file_paths['EEG']['bipolar'], frequency, pd_montage_referenced)
+raw_bip_vr = mneprep.load_raw(file_paths['EEG']['bipolar'], frequency, pd_montage_referenced)
 
-FREQUENCY = 256
-runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/base_setup.py', wdir='M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python')
+pd_unity_events = mneprep.load_unity_events(path_unity_events)
+pd_matlab_events = mneprep.load_matlab_events(path_onset_events)
+pd_events = pd.concat([pd_unity_events, pd_matlab_events])
+pd_events = mneprep.clear_pd(pd_events)
+mne_events_vr, mapp_vr = mneprep.pd_to_mne_events(pd_events, frequency)
+
+## Epoching
+epochs_perhead_vr = mne.Epochs(raw_perhead_vr, mne_events_vr, event_id = mapp_vr, tmin = -3, tmax = 3)
 
 # PICKS
 pick_perhead_hip = mnehelp.picks_all_localised(raw_perhead_vr, pd_montage_referenced, 'Hi')
