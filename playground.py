@@ -12,6 +12,8 @@ from functions import paths
 
 base_path = 'E:/OneDrive/FGU/iEEG/Data'
 participant = 'p136'
+scalings = {'seeg': 1e2, 'ecg': 1e2, 'misc': 1e2}
+
 file_paths = paths.prep_unity_alloego_files(base_path, participant)
 frequency = paths.get_frequency(paths.eeg_path(paths.unity_alloego_path(base_path, participant)))
 
@@ -25,15 +27,19 @@ raw_perhead = mneprep.load_raw(file_paths['EEG']['perHeadbox'], frequency, pd_mo
 raw_perelectrode = mneprep.load_raw(file_paths['EEG']['perElectrode'], frequency, pd_montage_referenced)
 raw_bipolar = mneprep.load_raw(file_paths['EEG']['bipolar'], frequency, pd_montage_referenced)
 
-pd_unity_events = mneprep.load_unity_events(path_unity_events)
-pd_matlab_events = mneprep.load_matlab_events(path_onset_events)
+pd_unity_events = mneprep.load_unity_events(file_paths['experiment']['events_timesinceeegstart'])
+pd_matlab_events = mneprep.load_matlab_events(file_paths['experiment']['onsets'])
+pd_matlab_events = pd_matlab_events.drop(columns=['unitytime', 'eegtime'])
+pd_matlab_events = pd_matlab_events.rename(columns={'timesinceeegstart': 'time'})
 pd_events = pd.concat([pd_unity_events, pd_matlab_events])
 pd_events = mneprep.clear_pd(pd_events)
-mne_events_vr, mapp_vr = mneprep.pd_to_mne_events(pd_events, frequency)
+
+mne_events, events_mapp = mneprep.pd_to_mne_events(pd_events, frequency)
 
 # Epoching
-epochs_perhead_vr = mne.Epochs(raw_perhead, mne_events_vr, event_id=mapp_vr,
-                               tmin=-3, tmax=3)
+epochs_original = mne.Epochs(raw_original, mne_events, event_id=events_mapp,
+                             tmin=-3, tmax=3)
+epochs_original.plot(scalings=scalings)
 
 # PICKS
 pick_perhead_hip = mnehelp.picks_all_localised(raw_perhead, pd_montage_referenced, 'Hi')
@@ -42,9 +48,8 @@ pick_perhead_ins = mnehelp.picks_all_localised(raw_perhead, pd_montage_reference
 pick_perhead_all = mnehelp.picks_all(raw_perhead)
 
 # Playing
-raw_original.plot(scalings={'seeg': 1e2, 'ecg': 1e2, 'misc': 1e2})
+raw_original.plot(scalings=scalings)
 raw_original.plot_psd(fmax=100, picks=['seeg'], average=False)
 
 raw_perhead.plot()
-raw_perelectrode.plot()
 raw_bipolar.plot()

@@ -20,21 +20,21 @@ def load_matlab_events(events_path):
 
 def load_unity_events(events_path):
     pd_events = exprd.read_events(events_path)
-    pd_events = pd_events.drop(['trialIDs', 'pointingError'], 1)
+    pd_events = pd_events.drop(['trialId', 'pointingError'], 1)
     pd_events = helpers.remove_unnamed(pd_events)
-    pd_events = pd.melt(pd_events, id_vars = ['type'])
+    pd_events = pd.melt(pd_events, id_vars=['type'])
     pd_events['name'] = pd_events['variable'] + '_' + pd_events['type']
     pd_events = pd_events.drop(['type', 'variable'], 1)
-    pd_events = pd_events.rename(index=str, columns = {"value": "time"})
+    pd_events = pd_events.rename(index=str, columns={"value": "time"})
     return pd_events
 
 
 def pd_to_mne_events(pd_events, frequency):
     event_types = pd_events.name.unique()
     event_nums = list(range(1,  event_types.size + 1))
-    mapping =  dict(zip(event_types, event_nums))
+    mapping = dict(zip(event_types, event_nums))
     pd_frame = pd_events.replace({'name': mapping})
-    pd_frame = pd_frame.sort_values(by = 'time')
+    pd_frame = pd_frame.sort_values(by='time')
     events_second_col = [0] * pd_frame.shape[0]
     events = np.array([pd_frame.time * frequency, events_second_col, pd_frame.name])
     events = events.astype(int)

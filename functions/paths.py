@@ -8,7 +8,7 @@ def get_frequency(eeg_path):
         for file in files:
             res = re.match(ptr, file)
             if res:
-                return res.group(1)
+                return int(res.group(1))
     return None
 
 
@@ -42,11 +42,11 @@ def prep_unity_alloego_files(base, participant):
     files['experiment'] = {
         'player': os.path.join(exp_path, participant + '_player.csv'),
         'events_eegtime': os.path.join(
-            exp_path, participant + '_events_eegtime_.csv'),
+            exp_path, participant + '_unity_eegtime_.csv'),
         'events_unitytime': os.path.join(
-            exp_path, participant + '_events_unitytime.csv'),
+            exp_path, participant + '_unity_unitytime.csv'),
         'events_timesinceeegstart': os.path.join(
-            exp_path, participant + '_events_timesinceeegstart.csv'),
+            exp_path, participant + '_unity_timesinceeegstart.csv'),
         'onsets': os.path.join(exp_path, participant + '_onsets.csv')
     }
     return files
