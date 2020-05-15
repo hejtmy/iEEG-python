@@ -32,12 +32,12 @@ def prep_unity_alloego_files(base, participant):
         'referenced': os.path.join(
             exp_path, participant + '_montage_referenced.csv')
     }
-    freq = get_frequency(exp_path)
+    freq = str(get_frequency(exp_path))
     files['EEG'] = {
         'base': os.path.join(exp_path, 'prep_' + freq + '.mat'),
         'bipolar': os.path.join(exp_path, 'prep_bipolar_' + freq + '.mat'),
         'perElectrode': os.path.join(exp_path, 'prep_perElectrode_' + freq + '.mat'),
-        'perHeadbox': os.path.join(exp_path, 'prep_perHeadbox_' + freq + '.mat'),
+        'perHeadbox': os.path.join(exp_path, 'prep_perHeadbox_' + freq + '.mat')
     }
     files['experiment'] = {
         'player': os.path.join(exp_path, participant + '_player.csv'),
