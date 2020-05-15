@@ -6,19 +6,57 @@ import pandas as pd
 
 
 def load_raw(data_path, frequency, montage=None):
+    """Loads eeg data from given filepath and converts to mne raw
+    Parameters
+    ----------
+    data_path : str
+        file path to the eeg mat file
+    frequency : int
+        frequnecy of the recording
+    montage : pandas.DataFrame
+        montage as loaded by read_montage
+
+    Returns
+    -------
+    mne.raw eeg
+    """
     data = eegrd.read_mat(data_path)
-    # data = data * 1e-06  # because of stupid scaling
-    raw = eegrd.numpy_mne(data, frequency, montage)
+    raw = eegrd.eeg_mat_to_mne(data, frequency, montage)
     return raw
 
 
 def load_matlab_events(events_path):
+    """Loads events exported from matlab (usually onsets) and formats the table
+
+    Parameters
+    ----------
+    events_path : str
+        fulll file path to the event file
+
+    Returns
+    ---------
+    formted pandas.DataFrame table with 'event;time' columns. Time designates
+    time since the eegstart
+    """
     pd_events = exprd.read_events(events_path)
     pd_events = helpers.remove_unnamed(pd_events)
+    pd_events = pd_events.drop(columns=['unitytime', 'eegtime'])
+    pd_events = pd_events.rename(columns={'timesinceeegstart': 'time'})
     return(pd_events)
 
 
 def load_unity_events(events_path):
+    """Loads unity table and prepares it to structured format
+
+    Parameters
+    ----------
+    events_path : str
+        file path to the event file
+
+    Returns
+    --------
+    pandas.DataFrame with 'event;time' columns.
+    """
     pd_events = exprd.read_events(events_path)
     pd_events = pd_events.drop(['trialId', 'pointingError'], 1)
     pd_events = helpers.remove_unnamed(pd_events)
@@ -30,13 +68,15 @@ def load_unity_events(events_path):
 
 
 def pd_to_mne_events(pd_events, frequency):
+    pd_events = clear_pd(pd_events)
     event_types = pd_events.name.unique()
     event_nums = list(range(1,  event_types.size + 1))
     mapping = dict(zip(event_types, event_nums))
     pd_frame = pd_events.replace({'name': mapping})
     pd_frame = pd_frame.sort_values(by='time')
     events_second_col = [0] * pd_frame.shape[0]
-    events = np.array([pd_frame.time * frequency, events_second_col, pd_frame.name])
+    events = np.array([pd_frame.time * frequency,
+                       events_second_col, pd_frame.name])
     events = events.astype(int)
     events[0, :] = add_one_to_duplicates(events[0, :])
     events = events.transpose()
@@ -44,19 +84,18 @@ def pd_to_mne_events(pd_events, frequency):
 
 
 def add_one_to_duplicates(arr):
+    """
+    """
     dup_ids = helpers.find_duplicates(arr)
     arr[dup_ids] += 1
-    if len(helpers.find_duplicates(arr))> 0:
+    if len(helpers.find_duplicates(arr)) > 0:
         return add_one_to_duplicates(arr)
     else:
         return arr
 
 
-def create_mne_events(events_path, frequency):
-    pd_events = load_matlab_events(events_path)
-    return pd_to_mne_events(pd_events, frequency)
-
-
 def clear_pd(pd_events):
+    """Removes faulty events
+    """
     pd_events = pd_events[pd_events.time > 0]
     return pd_events

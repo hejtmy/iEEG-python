@@ -1,4 +1,4 @@
-from scipy.stats import ttest_1samp, wilcoxon, ranksums, ttest_ind, mannwhitneyu
+from scipy.stats import ttest_1samp, wilcoxon, ranksums, ttest_ind
 import numpy as np
 from matplotlib import gridspec
 from matplotlib import colors

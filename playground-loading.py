@@ -1,5 +1,4 @@
 import mne
-# import numpy as np
 import pandas as pd
 
 from functions import mne_prepping as mneprep
@@ -29,8 +28,6 @@ raw_bipolar = mneprep.load_raw(file_paths['EEG']['bipolar'], frequency, pd_monta
 
 pd_unity_events = mneprep.load_unity_events(file_paths['experiment']['events_timesinceeegstart'])
 pd_matlab_events = mneprep.load_matlab_events(file_paths['experiment']['onsets'])
-pd_matlab_events = pd_matlab_events.drop(columns=['unitytime', 'eegtime'])
-pd_matlab_events = pd_matlab_events.rename(columns={'timesinceeegstart': 'time'})
 pd_events = pd.concat([pd_unity_events, pd_matlab_events])
 pd_events = mneprep.clear_pd(pd_events)
 
