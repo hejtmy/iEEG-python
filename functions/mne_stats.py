@@ -7,6 +7,7 @@ from functions import mne_helpers as mnehelp
 from functions import helpers
 from functions import mne_plot_helpers as mneplothelp
 
+
 # TFR is event X electrode X freqs X time
 # Returns table and sued frequencies for laters
 # Wilcox table is Channel X time X freqs
@@ -36,6 +37,7 @@ def wilcox_tfr_power(tfr1_orig, tfr2_orig, picks = None, average = False):
                 wilcox_table[i_ch][i_freq][i_time] = time_res.pvalue * sign  # converts statistic to -+ 1 depending on the direction
     wilcox_table = np.asarray(wilcox_table)
     return wilcox_table, freqs
+
 
 ## PLOT ----------
 # Wilcox table is in createschannel X time x freq

@@ -25,6 +25,26 @@ def load_raw(data_path, frequency, montage=None):
     return raw
 
 
+def load_preprocessed_events(file_paths):
+    """[summary]
+
+    Parameters
+    ----------
+    file_paths : dictionary
+        Dictionary of file paths obtained from functions.paths.prep_files
+
+    Returns
+    -----------
+    events, mapping : pandas.DataFrame
+        pandas.DataFrame dataframe with events and timesincestart
+    """
+    pd_unity_events = load_unity_events(
+            file_paths['experiment']['events_timesinceeegstart'])
+    pd_matlab_events = load_matlab_events(file_paths['experiment']['onsets'])
+    pd_events = pd.concat([pd_unity_events, pd_matlab_events])
+    return pd_events
+
+
 def load_matlab_events(events_path):
     """Loads events exported from matlab (usually onsets) and formats the table
 
@@ -68,6 +88,21 @@ def load_unity_events(events_path):
 
 
 def pd_to_mne_events(pd_events, frequency):
+    """Converts pandas.DataFrame to a mne valid evnets to use in Epoching
+
+    Parameters
+    ----------
+    pd_events : [type]
+        [description]
+    frequency : [type]
+        [description]
+
+    Returns
+    -------
+    events, mapping : touple
+        array with mne valid events []
+        mapped dictionary to use in pd_to_mne_events
+    """
     pd_events = clear_pd(pd_events)
     event_types = pd_events.name.unique()
     event_nums = list(range(1,  event_types.size + 1))

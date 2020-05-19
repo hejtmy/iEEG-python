@@ -1,20 +1,16 @@
 import mne
-import pandas as pd
 
 from functions import mne_prepping as mneprep
-from functions import mne_helpers as mnehelp
 from functions import read_eeg as readeegr
-# from functions import mne_stats as mnestats
 from functions import paths
 
-# from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 
 base_path = 'E:/OneDrive/FGU/iEEG/Data'
 participant = 'p136'
 scalings = {'seeg': 1e2, 'ecg': 1e2, 'misc': 1e2}
 
 file_paths = paths.prep_unity_alloego_files(base_path, participant)
-frequency = paths.get_frequency(paths.eeg_path(paths.unity_alloego_path(base_path, participant)))
+frequency = readeegr.get_frequency(paths.eeg_path(paths.unity_alloego_path(base_path, participant)))
 
 # loading montage
 pd_montage = readeegr.read_montage(file_paths['montage']['original']) 
@@ -26,11 +22,7 @@ raw_perhead = mneprep.load_raw(file_paths['EEG']['perHeadbox'], frequency, pd_mo
 raw_perelectrode = mneprep.load_raw(file_paths['EEG']['perElectrode'], frequency, pd_montage_referenced)
 raw_bipolar = mneprep.load_raw(file_paths['EEG']['bipolar'], frequency, pd_montage_referenced)
 
-pd_unity_events = mneprep.load_unity_events(file_paths['experiment']['events_timesinceeegstart'])
-pd_matlab_events = mneprep.load_matlab_events(file_paths['experiment']['onsets'])
-pd_events = pd.concat([pd_unity_events, pd_matlab_events])
-pd_events = mneprep.clear_pd(pd_events)
-
+pd_events = mneprep.load_preprocessed_events(file_paths)
 mne_events, events_mapp = mneprep.pd_to_mne_events(pd_events, frequency)
 
 # Epoching
@@ -45,3 +37,5 @@ raw_original.plot_psd(fmax=100, picks=['seeg'], average=False)
 raw_perhead.plot(scalings=scalings)
 raw_perelectrode.plot(scalings=scalings)
 raw_bipolar.plot(scalings=scalings)
+
+raw_bipolar.plot(events=mne_events, color='gray', scalings=scalings)

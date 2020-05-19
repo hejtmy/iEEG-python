@@ -1,15 +1,5 @@
 import os
-import re
-
-
-def get_frequency(eeg_path):
-    ptr = 'prep_.*_(\\d+)\\.mat'
-    for root, dirs, files in os.walk(eeg_path):
-        for file in files:
-            res = re.match(ptr, file)
-            if res:
-                return int(res.group(1))
-    return None
+from functions import read_eeg as readeeg
 
 
 def participant_path(base, participant):
@@ -32,7 +22,7 @@ def prep_unity_alloego_files(base, participant):
         'referenced': os.path.join(
             exp_path, participant + '_montage_referenced.csv')
     }
-    freq = str(get_frequency(exp_path))
+    freq = str(readeeg.get_frequency(exp_path))
     files['EEG'] = {
         'base': os.path.join(exp_path, 'prep_' + freq + '.mat'),
         'bipolar': os.path.join(exp_path, 'prep_bipolar_' + freq + '.mat'),

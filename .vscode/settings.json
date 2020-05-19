@@ -2,5 +2,6 @@
   "python.pythonPath": "f:\\Projects\\iEEG\\iEEG-python\\venv64\\Scripts\\python.exe",
   "python.linting.pylintEnabled": false,
   "python.linting.flake8Enabled": true,
-  "python.linting.enabled": true
+  "python.linting.enabled": true,
+"autoDocstring.docstringFormat": "numpy"
 }

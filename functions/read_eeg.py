@@ -1,10 +1,19 @@
 import h5py
 import mne
 import pandas as pd
+import re
+import os
 from functions import helpers
 
 
 def read_mat(path):
+    """Reads mat file into numpy array
+
+    Parameters
+    ----------
+    path : [type]
+        [description]
+    """
     mat = h5py.File(path)
     data = mat['eeg'][()]  # stores is as a numpy array - [()]
     return(data)
@@ -70,3 +79,25 @@ def read_montage(path):
     pd_montage.neurologyLabel = pd_montage.headboxNumber
     pd_montage = pd_montage.drop('headboxNumber', axis=1)
     return pd_montage
+
+
+def get_frequency(eeg_path):
+    """Estimates frequency from file names in given folder
+
+    Parameters
+    ----------
+    eeg_path : str
+        folder with eeg mat filesp
+
+    Returns
+    -------
+    int or None
+        estimated frequency or None if none was found
+    """
+    ptr = 'prep_.*_(\\d+)\\.mat'
+    for root, dirs, files in os.walk(eeg_path):
+        for file in files:
+            res = re.match(ptr, file)
+            if res:
+                return int(res.group(1))
+    return None
