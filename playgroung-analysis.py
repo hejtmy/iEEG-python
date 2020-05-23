@@ -5,6 +5,7 @@ from functions import mne_prepping as mneprep
 from functions import mne_helpers as mnehelp
 from functions import mne_loading as loader
 from functions import paths
+from functions import mne_analysis as mneanalysis
 
 # from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 
@@ -37,7 +38,9 @@ eeg.plot(scalings=scalings)
 eeg.plot_psd(fmax=100, picks=pick_hip, average=False)
 
 # TIME FREQ
-freqs = np.arange(1, 11, 1)
+freqs = np.arange(2, 11, 1)
 n_cycles = 6
 box = mnehelp.custom_box_layout(pick_perhead_hip_names, 3)
 plot_pick_perhead_hip = range(len(pick_hip))
+
+morlet = mneanalysis.morlet_all_events(epochs, freqs, n_cycles)

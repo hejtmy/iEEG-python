@@ -1,8 +1,8 @@
-from scipy.stats import ttest_1samp, wilcoxon, ranksums, ttest_ind
 import numpy as np
-from matplotlib import gridspec
-from matplotlib import colors
 import matplotlib.pyplot as plt
+
+from scipy.stats import ttest_1samp, wilcoxon, ranksums, ttest_ind
+from matplotlib import gridspec
 from functions import mne_helpers as mnehelp
 from functions import helpers
 from functions import mne_plot_helpers as mneplothelp
@@ -11,7 +11,7 @@ from functions import mne_plot_helpers as mneplothelp
 # TFR is event X electrode X freqs X time
 # Returns table and sued frequencies for laters
 # Wilcox table is Channel X time X freqs
-def wilcox_tfr_power(tfr1_orig, tfr2_orig, picks = None, average = False):
+def wilcox_tfr_power(tfr1_orig, tfr2_orig, picks=None, average=False):
     tfr1 = tfr1_orig.copy()
     tfr2 = tfr2_orig.copy()
     if picks is not None:
@@ -39,9 +39,9 @@ def wilcox_tfr_power(tfr1_orig, tfr2_orig, picks = None, average = False):
     return wilcox_table, freqs
 
 
-## PLOT ----------
+# PLOT ----------
 # Wilcox table is in createschannel X time x freq
-def plot_wilcox(wilcox_table, channel, sampling_frequency, cutout = 0.05, freqs = []):
+def plot_wilcox(wilcox_table, channel, sampling_frequency, cutout=0.05, freqs=[]):
     if len(freqs) == 0:
         freqs = range(len(wilcox_table[channel]))
     #recalculates to seconds from sampling freq
@@ -58,10 +58,11 @@ def plot_wilcox(wilcox_table, channel, sampling_frequency, cutout = 0.05, freqs 
     plt.pcolormesh(x, y, p_values)
     plt.colorbar()
     plt.show()
-    
-    
+
+
 # Explanation
-def plot_wilcox_box(wilcox_table, sampling_frequency, cutout = 0.05, freqs = [], picks = [], pick_names = []):
+def plot_wilcox_box(wilcox_table, sampling_frequency, cutout=0.05,
+                    freqs=[], picks=[], pick_names=[]):
     if len(freqs) == 0:
         freqs = range(len(wilcox_table[0]) + 1)
     if len(picks) == 0:
@@ -70,7 +71,7 @@ def plot_wilcox_box(wilcox_table, sampling_frequency, cutout = 0.05, freqs = [],
     times = range(len(wilcox_table[0][0]))
     times = [time/sampling_frequency for time in times]
     x, y = np.meshgrid(times, freqs)
-    
+
     nrow, ncol = helpers.nrow_ncol(len(picks))
     gs = gridspec.GridSpec(nrow, ncol)
     fig = plt.figure()
@@ -91,4 +92,3 @@ def plot_wilcox_box(wilcox_table, sampling_frequency, cutout = 0.05, freqs = [],
     cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
     fig.colorbar(im, cax = cbar_ax)
     plt.show()
-    

@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from functions import mne_helpers as mnehelp
 
 from mne.stats import permutation_cluster_test
-from mne.time_frequency import psd_multitaper, tfr_multitaper, tfr_stockwell, tfr_morlet
 
 base_path = "D:\\IntracranialElectrodes\\Data\\p126\\"
 base_path = "U:\\OneDrive\\FGU\\iEEG\\p126\\"
@@ -19,24 +18,13 @@ path_montage = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p126_montage.csv"
 path_montage_referenced = base_path + "UnityAlloEgo\\EEG\\Preprocessed\\p126_montage_referenced.csv"
 
 FREQUENCY = 250
-runfile('M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python/base_setup.py',
-        wdir='M:/Vyzkum/AV/FGU/IntracranialElectrodes/iEEG-python')
 
-# PICKS
-pick_perhead_hip = mnehelp.picks_all_localised(raw_perhead_vr, pd_montage_referenced, 'Hi')
-pick_perhead_hip_names = mne.pick_info(raw_perhead_vr.info, pick_perhead_hip)['ch_names']
-pick_perhead_ins = mnehelp.picks_all_localised(raw_perhead_vr, pd_montage_referenced, 'Ins')
-pick_perhead_all = mnehelp.picks_all(epochs_perhead_vr)
 
 # BAD EPOCHS
-#epochs_perhead_vr.plot(scalings = 'auto')
-
-#epochs_perhead_vr.plot(block = True, scalings = 'auto', picks=pick_perhead_hip)
-#epochs_perhead_vr.plot(block = True, scalings = 'auto')
-#mnehelp.get_dropped_epoch_indices(epochs_perhead_vr.drop_log)
+# epochs_perhead_vr.plot(block = True, scalings = 'auto')
+# mnehelp.get_dropped_epoch_indices(epochs_perhead_vr.drop_log)
 bad_epochs = []
 epochs_perhead_vr.drop(bad_epochs)
-
 
 # TIME FREQ
 freqs = np.arange(1, 11, 1)
