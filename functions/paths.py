@@ -17,6 +17,7 @@ def eeg_path(experiment_path):
 def prep_unity_alloego_files(base, participant):
     exp_path = eeg_path(unity_alloego_path(base, participant))
     files = dict()
+    files['folder'] = exp_path
     files['montage'] = {
         'original': os.path.join(exp_path, participant + '_montage.csv'),
         'referenced': os.path.join(
@@ -24,7 +25,7 @@ def prep_unity_alloego_files(base, participant):
     }
     freq = str(readeeg.get_frequency(exp_path))
     files['EEG'] = {
-        'base': os.path.join(exp_path, 'prep_' + freq + '.mat'),
+        'original': os.path.join(exp_path, 'prep_' + freq + '.mat'),
         'bipolar': os.path.join(exp_path, 'prep_bipolar_' + freq + '.mat'),
         'perElectrode': os.path.join(exp_path, 'prep_perElectrode_' + freq + '.mat'),
         'perHeadbox': os.path.join(exp_path, 'prep_perHeadbox_' + freq + '.mat')

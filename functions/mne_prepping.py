@@ -5,26 +5,6 @@ import numpy as np
 import pandas as pd
 
 
-def load_raw(data_path, frequency, montage=None):
-    """Loads eeg data from given filepath and converts to mne raw
-    Parameters
-    ----------
-    data_path : str
-        file path to the eeg mat file
-    frequency : int
-        frequnecy of the recording
-    montage : pandas.DataFrame
-        montage as loaded by read_montage
-
-    Returns
-    -------
-    mne.raw eeg
-    """
-    data = eegrd.read_mat(data_path)
-    raw = eegrd.eeg_mat_to_mne(data, frequency, montage)
-    return raw
-
-
 def load_preprocessed_events(file_paths):
     """[summary]
 
