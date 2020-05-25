@@ -21,7 +21,8 @@ def prep_unity_alloego_files(base, participant):
     files['montage'] = {
         'original': os.path.join(exp_path, participant + '_montage.csv'),
         'referenced': os.path.join(
-            exp_path, participant + '_montage_referenced.csv')
+            exp_path, participant + '_montage_referenced.csv'),
+        'bipolar': os.path.join(exp_path, participant + '_montage_bipolar.csv')
     }
     freq = str(readeeg.get_frequency(exp_path))
     files['EEG'] = {

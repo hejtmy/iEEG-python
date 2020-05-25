@@ -76,8 +76,6 @@ def mne_type(ch_type):
 def read_montage(path):
     pd_montage = pd.read_csv(path)
     pd_montage = helpers.remove_unnamed(pd_montage)
-    pd_montage.neurologyLabel = pd_montage.headboxNumber
-    pd_montage = pd_montage.drop('headboxNumber', axis=1)
     return pd_montage
 
 

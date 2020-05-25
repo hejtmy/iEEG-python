@@ -43,14 +43,14 @@ morlet['onsets_500_1500'].data.shape
 
 # These power values were binned into delta (1–4 Hz), theta(4–8 Hz) and alpha (8–12 Hz) frequency bands. Power values were also subsequently log transformed and then z-transformed.
 box = mnehelp.custom_box_layout(epochs.info['ch_names'], 6)
-pick_all = np.arange(0,112,1)
+pick_all = np.arange(0, 112, 1)
 morlet['onsets_500_1500'].average().plot_topo(picks=pick_all, layout=box, baseline=(-1, -0.5))
 morlet['onsets_500_1500'].average().plot(13)
 
 # bin into bins
 lfo_bands = [[2, 4], [4, 9]]
 morlet_bands = mneanalysis.convolutions_band_power(morlet, lfo_bands)
-morlet_bands['onsets_500_1500'].average().plot_topo(picks=pick_all, layout=box, baseline=(-1, -0.5))
+morlet_bands['onsets_500_1500'].average().plot_topo(picks=pick_all, layout=box)
 
 # Log transform the data
 
