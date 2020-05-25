@@ -1,6 +1,8 @@
-# Oscillations Go the Distance: Low-Frequency Human Hippocampal Oscillations Code Spatial Distance in the Absence of Sensory Cues during Teleportation
+# Oscillations Go the Distance: Low-Frequency Human Hippocampal Oscillations
+# Code Spatial Distance in the Absence of Sensory Cues during Teleportation
 
-# Lindsay K. Vass, Milagros S. Copara, Masud Seyal, Kiarash Shahlaie, Sarah Tomaszewski Farias, Peter Y. Shen, and Arne D. Ekstrom2
+# Lindsay K. Vass, Milagros S. Copara, Masud Seyal, Kiarash Shahlaie,
+# Sarah Tomaszewski Farias, Peter Y. Shen, and Arne D. Ekstrom
 # https://www.cell.com/cms/10.1016/j.neuron.2016.01.045/attachment/6f25e416-ed11-4ea5-bbaa-e3dd769fb1d0/mmc1
 import mne
 import numpy as np
@@ -25,14 +27,33 @@ mne_events, events_mapp = mneprep.pd_to_mne_events(pd_events, eeg.info['sfreq'])
 # Preprocessing
 eeg.notch_filter(50)
 
-# We quantified oscillatory episodes using the method of Caplan et al. (2001, 2003). This approach identifies epochs of iEEG signal that show high-oscillatory power at a particular frequency lasting several cycles. The method excludes much of the background noise signal by estimating the noise spectrum. A minimum-duration threshold helps to exclude spikes, sharpwaves, and nonrhythmic changes in power. The analysis is performed separately at each frequency of interest.
+# We quantified oscillatory episodes using the method of Caplan et al.(2001)
+# This approach identifies epochs of iEEG signal that show high-oscillatory
+# power at a particular frequency lasting several cycles. The method excludes
+# much of the background noise signal by estimating the noise spectrum.
+# A minimum-duration threshold helps to exclude spikes, sharpwaves,
+# and nonrhythmic changes in power. The analysis is performed separately
+# at each frequency of interest.
 
-# For a given frequency, f*, an oscillatory episode is defined as an epoch longer than a duration threshold, DT(in numbers of cycles), during which wavelet power at frequency f* exceeded a power threshold, PT. 
+# For a given frequency, f*, an oscillatory episode is defined as an epoch
+# longer than a duration threshold, DT(in numbers of cycles), during which
+# wavelet power at frequency f* exceeded a power threshold, PT
 
-# We wavelet-transformed the raw iEEG signal [Morlet wavelet, window 6 cycles,] at 22 logarithmically spaced frequencies in the range 1–32 Hz to obtain the wavelet power spectrum.
+# We wavelet-transformed the raw iEEG signal [Morlet wavelet, window 6 cycles,]
+# at 22 logarithmically spaced frequencies in the range 1–32 Hz to obtain the
+# wavelet power spectrum.
 
-#  We assumed that thebackground noise spectrum has the form Power(f)¼Afa. We estimated this background by fitting the observed spectrum(at each electrode) with a linear regression in log-log units. Because wavelet power values are expected to be distributed likev Chi2, the estimated background at f* should be the mean of its corresponding chi2 distribution. e chose PT(f) to be the 95th percentile of the fit distribution. Power thresholding should exclude about 95% of the 
+# We assumed that thebackground noise spectrum has the form Power(f)¼Afa.
+# We estimated this background by fitting the observed spectrum
+# (at each electrode) with a linear regression in log-log units.
+# Because wavelet power values are expected to be distributed likev Chi2,
+# the estimated background at f* should be the mean of its corresponding
+# chi2 distribution. e chose PT(f) to be the 95th percentile of the fit
+# distribution. Power thresholding should exclude about 95% of the 
 
-# We set DTto three cycles off, or 3/f. This was done to eliminate artifacts and nonrhythmicphysiological signals.
+# We set DTto three cycles off, or 3/f. This was done to eliminate artifacts
+# and nonrhythmicphysiological signals.
 
-# Finally, Pepisode(f), or the percentageof time in oscillatory episodes, was defined as the total amoun tof time filled with detected oscillatory episodes divided by thetotal time in the segment of interest. I
+# Finally, Pepisode(f), or the percentageof time in oscillatory episodes, was
+# defined as the total amoun tof time filled with detected oscillatory
+# episodes divided by thetotal time in the segment of interest.
