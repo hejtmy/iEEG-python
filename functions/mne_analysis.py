@@ -2,7 +2,7 @@ import numpy as np
 from mne.time_frequency import tfr_morlet
 
 
-def morlet_all_events(epochs, freqs, n_cycles,
+def morlet_all_events(epochs, freqs, n_cycles, average=True,
                       events=[], return_itc=False):
     """runs mne.time_frequency.tfr_morlet on all evens in the epoch
     object and returns a dictionary with all computed
@@ -11,10 +11,12 @@ def morlet_all_events(epochs, freqs, n_cycles,
     ----------
     epochs : mne.Epoch
         object with the epochs
-    freqs : [type]
+    freqs : touple of int
         what frequencies to convolve.See tfr_morlet for details
-    n_cycles : [type]
+    n_cycles : int
         number of cycles. See tfr_morlet for details
+    average : bool
+        shoudl it return AverageTFR or EpochsTFR
     events : list, optional
         list of event names. If empty, calculates convolusions
         for all events. by default []
@@ -33,9 +35,10 @@ def morlet_all_events(epochs, freqs, n_cycles,
     for event in events:
         if event not in all_events:
             continue
+        print(f'Convolving {event}')
         convolutions[event] = tfr_morlet(
             epochs[event], freqs=freqs, n_cycles=n_cycles,
-            return_itc=return_itc)
+            return_itc=return_itc, average=average)
     return convolutions
 
 
@@ -100,6 +103,8 @@ def band_power(tfr, bands):
         return None
     is_averaged = len(tfr.data.shape) == 3
     # at what index is the freq dimension/axis
+    # EpochsTFR are (n_epochs, n_channels, n_freqs, n_times)
+    # AverageTFR are (n_channels, n_freqs, n_times)
     if is_averaged:
         dim_freq = 1
     else:

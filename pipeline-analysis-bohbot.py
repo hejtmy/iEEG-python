@@ -1,12 +1,12 @@
 # Low-frequency theta oscillations in the humanhippocampus during real-world and virtualnavigation
 
 # Ve ́ronique D. Bohbot1, Milagros S. Copara2, Jean Gotman3& Arne D. Ekstrom2,4,5
-
 import mne
 import numpy as np
 
 from functions import mne_prepping as mneprep
 from functions import mne_loading as loader
+from functions import mne_helpers as mnehelp
 from functions import paths
 from functions import mne_analysis as mneanalysis
 
@@ -25,9 +25,41 @@ mne_events, events_mapp = mneprep.pd_to_mne_events(pd_events, eeg.info['sfreq'])
 # Preprocessing
 eeg.notch_filter(50)
 
-# Spectral power estimates were computed by convolving the filtered signal with six cycle Morlet wavelets at 32 logarithmically spaced frequencies ranging from 1 to 45 Hz. Because our hypotheses are concerning LFOs we focused on frequencies lower than 32 Hz. 
+# Epoching
+# Needs to give it long tails because of the low frequnecies
+epochs = mne.Epochs(eeg, mne_events, event_id=events_mapp, tmin=-5, tmax=5)
+
+# Spectral power estimates were computed by convolving the filtered signal with six cycle Morlet wavelets at 32 logarithmically spaced frequencies ranging from 1 to 45 Hz. Because our hypotheses are concerning LFOs we focused on frequencies lower than 32 Hz.
+freqs = np.logspace(np.log(1.0), np.log(45.0), num=32)
+freqs = freqs[0:10]  # don't need the higher ones
+n_cycles = 6
+
+# Calculate the morlet convolutions and return epochsTFR, not AverageTFR
+events = ['onsets_500_1500', 'stops_500_1500']
+morlet = mneanalysis.morlet_all_events(
+    epochs, freqs, n_cycles, average=False, events=events)
+
+morlet['onsets_500_1500'].data.shape
 
 # These power values were binned into delta (1–4 Hz), theta(4–8 Hz) and alpha (8–12 Hz) frequency bands. Power values were also subsequently log transformed and then z-transformed.
+box = mnehelp.custom_box_layout(epochs.info['ch_names'], 6)
+pick_all = np.arange(0,112,1)
+morlet['onsets_500_1500'].average().plot_topo(picks=pick_all, layout=box, baseline=(-1, -0.5))
+morlet['onsets_500_1500'].average().plot(13)
+
+# bin into bins
+lfo_bands = [[2, 4], [4, 9]]
+morlet_bands = mneanalysis.convolutions_band_power(morlet, lfo_bands)
+morlet_bands['onsets_500_1500'].average().plot_topo(picks=pick_all, layout=box, baseline=(-1, -0.5))
+
+# Log transform the data
+
+# Z transform the data - PER CHANNEL
+
+# No baseline???
+
+# Crop the 0 1500
+# EpochsTFR.crop
 
 # The number of electrode contacts with significantly different power values across experimental conditions was determined with t-tests across each frequency band at a P value 0.01. Thus,we averaged the log and z-transformed power for delta (1–4 Hz), theta (4–8 Hz),and alpha (8–12 Hz) bands for each condition (for example, Search). 
 

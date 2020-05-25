@@ -41,7 +41,7 @@ def eeg_mat_to_mne(data, frequency, montage=None):
     else:
         if montage.shape[0] != data.shape[0]:
             print("""Montage has differnet number of channels {}
-                  that are in the data {}""".format(str(montage.shape[0]),
+                  than are in the data {}""".format(str(montage.shape[0]),
                                                     str(data.shape[0])))
             return eeg_mat_to_mne(data, frequency)
         ch_types = [mne_type(ch_type) for ch_type in montage.signalType]
