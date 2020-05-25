@@ -12,16 +12,16 @@ def picks_all_localised(raw, pd_montage, where):
     return np.intersect1d(all_channels, where_channels)
 
 
-def picks_all(raw, where = None, pd_montage = None):
-    return mne.pick_types(raw.info, seeg = True, meg = True, eeg = False, 
-                           stim = False, eog = True, exclude ='bads')
+def picks_all(raw, where=None, pd_montage=None):
+    return mne.pick_types(raw.info, seeg=True, meg=True, eeg=False,
+                          stim=False, eog=True, exclude='bads')
 
 
 def picks_localised(pd_montage, name):
     return pd_montage[pd_montage.neurologyLabel.str.contains(name)].index
 
 
-##Droping epochs helpers
+# Droping epochs helpers
 def get_dropped_epoch_indices(ls):
     rm_ignored = [item for item in ls if item != ['IGNORED']]
     drop_indices = [i for i, x in enumerate(rm_ignored) if x == ['USER']]
@@ -30,11 +30,11 @@ def get_dropped_epoch_indices(ls):
 
 # Creates box layout for non standard topological images (such as seeg)
 # NEEDS channel names, unfortunately
-def custom_box_layout(ch_names, ncol = 6):
+def custom_box_layout(ch_names, ncol=6):
     # Creates boundaries of the 0-1 box, will be
     box = (-0.1, 1.1, -0.1, 1.1)
     # just puts the channel names to strings
-    nrow, ncol = helpers.nrow_ncol(len(ch_names), ncol = ncol)
+    nrow, ncol = helpers.nrow_ncol(len(ch_names), ncol=ncol)
     x, y = np.mgrid[0:1:(1/ncol), 0:1:(1/nrow)]
     xy = np.vstack([x.ravel(), y.ravel()]).T
     w, h = [1 / (1.1 * ncol), 1 / (1.1 * nrow)]
@@ -47,13 +47,11 @@ def custom_box_layout(ch_names, ncol = 6):
     return(box_layout)
 
 
-## PLOTS
-
-#frequency is in indes at this time
+# frequency is in indes at this time
 # picks are in indices of already computed 
 def plot_power_time(tfrs, picks, frequency, pick_names = [], event_names = [], ncol = 3):
     # find the frequency index
-    nplots = len(picks) + 1 #last will be legend
+    nplots = len(picks) + 1  # last will be legend
     nrow, ncol = helpers.nrow_ncol(nplots, ncol)
     gs = gridspec.GridSpec(nrow, ncol)
     fig = plt.figure()
@@ -65,12 +63,12 @@ def plot_power_time(tfrs, picks, frequency, pick_names = [], event_names = [], n
     # adds legend
     ax = fig.add_subplot(gs[nplots - 1])
     for n, _ in enumerate(tfrs):
-        ax.plot([0], label = event_names[n])
+        ax.plot([0], label=event_names[n])
         handles, labels = ax.get_legend_handles_labels()
     plt.legend(handles, labels)
     plt.show()
-    
-    
+
+
 def plot_power_time_average(tfrs, picks, frequency, channel_name = [], event_names = [], ncol = 3):
     # find the frequency index
     nplots = len(picks) + 1 #last will be legend
@@ -190,6 +188,7 @@ def instantiate_tfr_zero_list(ls):
     zeros = [[[0 for x in range(c)] for y in range(b)] for z in range(a)]
     return(zeros)
 
+
 # Tfr is a tfr object calculated by MNE tfr functions - CAN be averaged or not
 # Bands need to be in a list of bottom inclusive touples
 # e.g. lfo = [[2, 4],[4, 9]] will select bands [2, 3] and [4, 8]
@@ -204,14 +203,14 @@ def band_power(tfr, bands = []):
         dim_freq = 1
     else:
         dim_freq = 2
-        
+
     new_data = []
     new_freqs = []
     for band in bands:
-        #finds indices of these freqs
+        # finds indices of these freqs
         i_bottom = np.where(tfr.freqs >= band[0])[0][0]
         i_top = np.where(tfr.freqs < band[1])[0][-1]
-        #tfr data are channel, freq, time - selecting all freqs of given band
+        # tfr data are channel, freq, time - selecting all freqs of given band
         if is_averaged:
             frequency_data = tfr.data[:, i_bottom:(i_top + 1), :]
         else:

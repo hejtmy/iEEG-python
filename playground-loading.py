@@ -22,8 +22,8 @@ epochs.plot(scalings=scalings)
 
 # PICKS
 pick_hip = mnehelp.picks_all_localised(eeg, montage, 'Hi')
-pick_perhead_hip_names = mne.pick_info(eeg.info, pick_hip)['ch_names']
 pick_perhead_all = mnehelp.picks_all(eeg, montage)
+pick_perhead_hip_names = mne.pick_info(eeg.info, pick_hip)['ch_names']
 
 # Playing
 eeg.plot(scalings=scalings)

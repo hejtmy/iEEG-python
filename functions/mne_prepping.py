@@ -1,8 +1,9 @@
-from functions import read_eeg as eegrd
-from functions import read_experiment_data as exprd
-from functions import helpers
 import numpy as np
 import pandas as pd
+import mne
+
+from functions import read_experiment_data as exprd
+from functions import helpers
 
 
 def load_preprocessed_events(file_paths):
@@ -114,3 +115,24 @@ def clear_pd(pd_events):
     """
     pd_events = pd_events[pd_events.time > 0]
     return pd_events
+
+
+def create_montage(eeg, pd_montage):
+    """[summary]
+
+    Doesn't work. Started working on it, but couldn't plot due to renderer
+    https://mne.tools/stable/auto_tutorials/misc/plot_ecog.html#sphx-glr-auto-tutorials-misc-plot-ecog-py
+    Parameters
+    ----------
+    eeg : [type]
+        [description]
+    pd_montage : [type]
+        [description]
+    """
+    coords = pd_montage[['MNI_x', 'MNI_y', 'MNI_z']]/1000
+    tuples = [tuple(x) for x in coords.to_numpy()]
+    mne_dig_montage = mne.channels.make_dig_montage(
+        ch_pos=dict(zip(eeg.info['ch_names'], tuples)),
+        coord_frame='head')
+    info = eeg.info.set_montage(mne_dig_montage)
+    return(info)
