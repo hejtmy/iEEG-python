@@ -48,8 +48,9 @@ def custom_box_layout(ch_names, ncol=6):
 
 
 # frequency is in indes at this time
-# picks are in indices of already computed 
-def plot_power_time(tfrs, picks, frequency, pick_names = [], event_names = [], ncol = 3):
+# picks are in indices of already computed
+def plot_power_time(tfrs, picks, frequency, pick_names=[],
+                    event_names=[], ncol=3):
     # find the frequency index
     nplots = len(picks) + 1  # last will be legend
     nrow, ncol = helpers.nrow_ncol(nplots, ncol)
@@ -58,7 +59,8 @@ def plot_power_time(tfrs, picks, frequency, pick_names = [], event_names = [], n
     for i, pick in enumerate(picks):
         ax = fig.add_subplot(gs[i])
         for n, event_tfr in enumerate(tfrs):
-            ax.plot(event_tfr.times, event_tfr.data[pick, frequency, :], label = event_names[n])
+            ax.plot(event_tfr.times, event_tfr.data[pick, frequency, :],
+                    label=event_names[n])
             ax.legend([create_pick_name(i, pick_names)])
     # adds legend
     ax = fig.add_subplot(gs[nplots - 1])
@@ -69,17 +71,17 @@ def plot_power_time(tfrs, picks, frequency, pick_names = [], event_names = [], n
     plt.show()
 
 
-def plot_power_time_average(tfrs, picks, frequency, channel_name = [], event_names = [], ncol = 3):
+def plot_power_time_average(tfrs, picks, frequency, channel_name=[], event_names=[], ncol=3):
     # find the frequency index
-    nplots = len(picks) + 1 #last will be legend
+    nplots = len(picks) + 1  # last will be legend
     nrow, ncol = helpers.nrow_ncol(nplots, ncol)
     plt.figure()
     ax = plt.axes()
     for n, event_tfr in enumerate(tfrs):
         data = event_tfr.data[picks, frequency, :]
         data = np.average(data, 0).squeeze()
-        ax.plot(event_tfr.times, data, label = event_names[n])
-    ax.legend(channel_name)    
+        ax.plot(event_tfr.times, data, label=event_names[n])
+    ax.legend(channel_name)
     plt.legend()
     plt.show()
 

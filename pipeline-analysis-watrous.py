@@ -53,4 +53,4 @@ eeg.notch_filter(50)
 # the pseudo t-value in the 99. 99th percentile (i.e., bootstrap alpha
 # threshold 0.001) as the critical t-value for each predictor variable,
 # and electrodeswith t-values greater than the critical t-value were
-# deemed significant. 
+# deemed significant.
