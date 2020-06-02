@@ -10,7 +10,7 @@ participant = 'p136'
 scalings = {'seeg': 1e2, 'ecg': 1e2, 'misc': 1e2}
 
 file_paths = paths.prep_unity_alloego_files(base_path, participant)
-eeg, montage = loader.load_eeg(file_paths, 'original')
+eeg, montage = loader.load_eeg(file_paths, 'perElectrode')
 
 pd_events = mneprep.load_preprocessed_events(file_paths)
 mne_events, events_mapp = mneprep.pd_to_mne_events(pd_events, eeg.info['sfreq'])

@@ -14,7 +14,7 @@ def read_mat(path):
     path : [type]
         [description]
     """
-    mat = h5py.File(path)
+    mat = h5py.File(path, 'r')
     data = mat['eeg'][()]  # stores is as a numpy array - [()]
     return(data)
 
