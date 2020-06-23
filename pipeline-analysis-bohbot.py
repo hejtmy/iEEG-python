@@ -73,16 +73,17 @@ morlet['onsets_500_1500'].average()
 z_morlet = morlet['onsets_500_1500'].copy()
 z_morlet.data = np.log(z_morlet.data)
 z_morlet.average().plot(12)
+z_morlet.average().plot(12)
 
 # Z transform the data
 
-z_morlet = morlet['onsets_500_1500'].copy().apply_baseline((-1, 2), mode='zlogratio')
 # MNE WAY
 # *This technically does each z scoring individually per epoch, not sure
 # if this is wanted behavior - maybe this could be done differently
 # https://github.com/mne-tools/mne-python/blob/76ee63ff92b0424a304a12532d0cb53c0833a0ec/mne/baseline.py
-z_morlet.average().plot(12)
-plt = mnevis.plot_power_heatmap(z_morlet.copy().average())
+plot_power_heatmap(morlet['onsets_500_1500'].copy().apply_baseline((-1, -0.5), mode='logratio').average().pick(pick_hip_names))
+z_morlet = mnevis.plot_power_heatmap(morlet['stops_500_1500'].copy().apply_baseline((-1, -0.5), mode='logratio').average().pick(pick_hip_names))
+plt = mnevis.plot_power_heatmap(z_morlet.copy().average().pick(pick_hip_names))
 
 # The number of electrode contacts with significantly different power values
 # across experimental conditions was determined with t-tests across each
