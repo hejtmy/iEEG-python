@@ -58,6 +58,7 @@ box = mne.channels.layout.make_grid_layout(eeg.info, picks=pick_all)
 avg = morlet['onsets_500_1500'].average()
 avg.plot_topo(layout=box, picks=pick_all, baseline=(-0.5, 0),
               mode='logratio', title='Average power')
+
 morlet['onsets_500_1500'].average().plot(13)
 
 # These power values were binned into delta (1–4 Hz), theta(4–8 Hz) and
