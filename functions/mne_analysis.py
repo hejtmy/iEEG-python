@@ -2,95 +2,6 @@ import numpy as np
 from mne.time_frequency import tfr_morlet
 import mne
 
-def morlet_all_events(epochs, freqs, n_cycles, average=True,
-                      events=[], return_itc=False):
-    """runs mne.time_frequency.tfr_morlet on all evens in the epoch
-    object and returns a dictionary with all computed
-
-    Parameters
-    ----------
-    epochs : mne.Epoch
-        object with the epochs
-    freqs : touple of int
-        what frequencies to convolve.See tfr_morlet for details
-    n_cycles : int
-        number of cycles. See tfr_morlet for details
-    average : bool
-        shoudl it return AverageTFR or EpochsTFR
-    events : list, optional
-        list of event names. If empty, calculates convolusions
-        for all events. by default []
-    return_itc : bool, optional
-        see tfr_morlet for details. by default False
-
-    Returns
-    -------
-    dictionary
-        returns dictionary of convolutions
-    """
-    all_events = epochs.event_id.keys()
-    if len(events) == 0:
-        events = all_events
-    convolutions = dict()
-    for event in events:
-        if event not in all_events:
-            continue
-        print(f'Convolving {event}')
-        convolutions[event] = tfr_morlet(
-            epochs[event], freqs=freqs, n_cycles=n_cycles,
-            return_itc=return_itc, average=average)
-    return convolutions
-
-
-def convolutions_apply_baselines(convolutions, baseline, mode, events=[]):
-    """Apply baseline to all convolutions. convolutions need to be in
-    AverageTFR or EpochsTFR format which has apply_baseline method
-
-    Parameters
-    ----------
-    convolutions : dictionary of AverageTFR
-        Dictionary of all events
-    baseline : touple of numbers
-        seconds of the event to baseline
-    mode : str
-        type of bsaeline. See apply_baseline for more information
-    events : list, optional
-        list of named events from convolutions to baseline.
-        If empty, baselines all events. By default []
-
-    Returns
-    -------
-    dict
-        dictionary of baselined convolutions
-    """
-    all_events = convolutions.keys()
-    if len(events) == 0:
-        events = all_events
-    for event in events:
-        if event not in all_events:
-            continue
-        convolutions[event] = convolutions[event].apply_baseline(
-            baseline=baseline, mode=mode)
-    return convolutions
-
-
-def convolutions_band_power(convolutions, frequency_bands):
-    """Wrapper around band_power for a list of multiple events returned by morlet_all_evnets
-
-    Parameters
-    ----------
-    convolutions : list of mne.EpochsTFR or mne.AverageTFR
-        list for mulitple events
-    frequency_bands : list of int touples
-
-    Returns
-    -------
-    list of the TFR as was sent
-    """
-    for event in convolutions.keys():
-        convolutions[event] = band_power(convolutions[event], frequency_bands)
-    return convolutions
-
 
 def band_power(tfr, bands):
     """Averages TFR object into given bands
@@ -140,3 +51,10 @@ def band_power(tfr, bands):
     tfr.data = np.concatenate(new_data, dim_freq)
     tfr.freqs = np.asarray(new_freqs)
     return tfr
+
+
+def log_transform(tfr):
+    tfr.data = np.log(tfr.data)
+
+
+def z_transform(tfr, per="channel")
