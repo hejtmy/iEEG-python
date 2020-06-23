@@ -23,12 +23,12 @@ eeg, montage = loader.load_eeg(file_paths, 'bipolar')
 pd_events = mneprep.load_preprocessed_events(file_paths)
 mne_events, events_mapp = mneprep.pd_to_mne_events(pd_events, eeg.info['sfreq'])
 
-# Preprocessing
-eeg.notch_filter(50)
-
 # Raw signals were downsampled to 1,000 Hz, band-passfiltered from 1 to 200 Hz,
-# and notch filtered at 60 Hz (59.9–60.9 Hz)to minimize line noise artifacts
+# and notch filtered at 60 Hz (59.9–60.9 Hz) to minimize line noise artifacts
 # during postprocessing.
+
+# Already downsampled to 250
+eeg.notch_filter(50)
 
 # The speed predictor variable represented the subject’s virtual linear speed
 # in the environment. The task predictor variable corresponded to whether

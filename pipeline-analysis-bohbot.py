@@ -43,29 +43,37 @@ events = ['onsets_500_1500', 'stops_500_1500']
 morlet = mneanalysis.morlet_all_events(
     epochs, freqs, n_cycles, average=False, events=events)
 
+morlet['onsets_500_1500'].crop(-1, 2)
+morlet['stops_500_1500'].crop(-1, 2)
+
+# MINE --------
 morlet['onsets_500_1500'].data.shape
+pick_all = mnehelp.picks_all(eeg, montage)
+pick_all_names = mne.pick_info(eeg.info, pick_all)['ch_names']
+pick_hip = mnehelp.picks_all_localised(eeg, montage, 'Hi')
+pick_hip_names = mne.pick_info(eeg.info, pick_hip)['ch_names']
+
+box = mnehelp.custom_box_layout(pick_all_names, 8)
+box = mne.channels.layout.make_grid_layout(eeg.info, picks=pick_all)
+avg = morlet['onsets_500_1500'].average()
+avg.plot_topo(layout=box, picks=pick_all, baseline=(-0.5, 0),
+              mode='logratio', title='Average power')
+morlet['onsets_500_1500'].average().plot(13)
 
 # These power values were binned into delta (1–4 Hz), theta(4–8 Hz) and
 # alpha (8–12 Hz) frequency bands. Power values were also subsequently
 # log transformed and then z-transformed.
-box = mnehelp.custom_box_layout(epochs.info['ch_names'], 6)
-pick_all = np.arange(0, 112, 1)
-morlet['onsets_500_1500'].average().plot_topo(picks=pick_all, layout=box, baseline=(-1, -0.5))
-morlet['onsets_500_1500'].average().plot(13)
-
-# bin into bins
-lfo_bands = [[2, 4], [4, 9]]
-morlet_bands = mneanalysis.convolutions_band_power(morlet, lfo_bands)
-morlet_bands['onsets_500_1500'].average().plot_topo(picks=pick_all, layout=box)
+lfo_bands = [[1, 4], [4, 8], [8, 13]]
+morlet = mneanalysis.convolutions_band_power(morlet, lfo_bands)
+morlet['onsets_500_1500'].average().plot_topo(picks=pick_hip, layout=box)
 
 # Log transform the data
-
+z_morlet = morlet['onsets_500_1500'].copy().apply_baseline((-1, -0.5), mode='logratio')
+z_morlet.average().plot(12)
+plt = z_morlet.average().plot_topo(layout=box, show=True)
 # Z transform the data - PER CHANNEL
 
 # No baseline???
-
-# Crop the 0 1500
-# EpochsTFR.crop
 
 # The number of electrode contacts with significantly different power values
 # across experimental conditions was determined with t-tests across each

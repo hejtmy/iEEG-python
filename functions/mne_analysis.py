@@ -1,6 +1,6 @@
 import numpy as np
 from mne.time_frequency import tfr_morlet
-
+import mne
 
 def morlet_all_events(epochs, freqs, n_cycles, average=True,
                       events=[], return_itc=False):
@@ -75,6 +75,18 @@ def convolutions_apply_baselines(convolutions, baseline, mode, events=[]):
 
 
 def convolutions_band_power(convolutions, frequency_bands):
+    """Wrapper around band_power for a list of multiple events returned by morlet_all_evnets
+
+    Parameters
+    ----------
+    convolutions : list of mne.EpochsTFR or mne.AverageTFR
+        list for mulitple events
+    frequency_bands : list of int touples
+
+    Returns
+    -------
+    list of the TFR as was sent
+    """
     for event in convolutions.keys():
         convolutions[event] = band_power(convolutions[event], frequency_bands)
     return convolutions
@@ -85,11 +97,11 @@ def band_power(tfr, bands):
 
     Parameters
     ----------
-    tfr : mne.AverageTFR
-        object ot average into
+    tfr : mne.AverageTFR or mne.EpochsTFR
+        object to average, passed by refernece
     bands : list of num touples
-        list of  of bottom inclusive touples of wanted bands.
-        e.g. [(2, 4),(4, 9)] will select bands [2, 3] and [4, 8]
+        list of  of both bottom and top inclusive touples of wanted bands.
+        e.g. [(2, 4),(4, 9)] will select bands [2, 4] and [4, 9]
     Returns
     -------
     Returns the same object as was passed but with recalculated powers
@@ -98,34 +110,33 @@ def band_power(tfr, bands):
     Example
     -------
     """
-    if len(tfr.data.shape) not in [3, 4]:
-        print("This doesn¨t look like a TFR file. Dimensions are not correct")
-        return None
-    is_averaged = len(tfr.data.shape) == 3
-    # at what index is the freq dimension/axis
-    # EpochsTFR are (n_epochs, n_channels, n_freqs, n_times)
-    # AverageTFR are (n_channels, n_freqs, n_times)
-    if is_averaged:
-        dim_freq = 1
-    else:
+    valid = False
+    if isinstance(tfr, mne.time_frequency.tfr.EpochsTFR):
+        # EpochsTFR are (n_epochs, n_channels, n_freqs, n_times)
         dim_freq = 2
-
+        valid = True
+    if isinstance(tfr, mne.time_frequency.tfr.AverageTFR):
+        # AverageTFR are (n_channels, n_freqs, n_times)
+        dim_freq = 1
+        valid = True
+    if not valid:
+        print("This doesn't look like a TFR file. Dimensions are not correct")
+        return None
     new_data = []
     new_freqs = []
     for band in bands:
         # finds indices of these freqs
+        # TODO - add output of this information
         i_bottom = np.where(tfr.freqs >= band[0])[0][0]
-        i_top = np.where(tfr.freqs < band[1])[0][-1]
-        # tfr data are channel, freq, time - selecting all freqs of given band
-        if is_averaged:
+        i_top = np.where(tfr.freqs <= band[1])[0][-1]
+        if dim_freq == 1:
             frequency_data = tfr.data[:, i_bottom:(i_top + 1), :]
         else:
             frequency_data = tfr.data[:, :, i_bottom:(i_top + 1), :]
         mean_band_power = frequency_data.mean(dim_freq, keepdims=True)
         new_data.append(mean_band_power)
         new_freqs.append(band[0])
-    band_tfr = tfr.copy()
-    # combiine band powers along th efrequency axis
-    band_tfr.data = np.concatenate(new_data, dim_freq)
-    band_tfr.freqs = np.asarray(new_freqs)
-    return band_tfr
+    # combine band powers along th efrequency axis
+    tfr.data = np.concatenate(new_data, dim_freq)
+    tfr.freqs = np.asarray(new_freqs)
+    return tfr

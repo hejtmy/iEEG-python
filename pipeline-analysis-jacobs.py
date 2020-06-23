@@ -30,13 +30,13 @@ pd_events = mneprep.load_preprocessed_events(file_paths)
 mne_events, events_mapp = mneprep.pd_to_mne_events(pd_events, eeg.info['sfreq'])
 
 # Preprocessing
-eeg.notch_filter(50)
 
 # To further reduce electrical line noise, a band-stop 4th order Butterworth
 # filter was applied at 58–62 Hz. To eliminate events contaminated by
 # epileptiform activity, we excluded time periods of interest if the
 # kurtosis of the voltage trace exceeded a threshold of 563. This in
 # the exclusion of an average of 7.1% ± 1.7% of experimental events.
+eeg.notch_filter(50)
 
 # Additionally, clinicians at each collaborating hospital identified which
 # electrodes were located in seizure onset zones. For our control analysis
@@ -80,4 +80,4 @@ eeg.notch_filter(50)
 # each electrode and condition and then used a robust regression to fit
 # the 1/f background power spectrum. We labeled any frequency where the
 # residual power was greater than one standard deviation above the background
-# 1/f as exhibiti ngnarrow band oscillatory activity
+# 1/f as exhibiting narrow band oscillatory activity
