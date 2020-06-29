@@ -22,24 +22,24 @@ participant = 'p136'
 scalings = {'seeg': 5e2, 'ecg': 1e2, 'misc': 1e2}
 FULL_EPOCH_TIME = (-1.0, 1.5)
 EPOCH_TIME = (0, 1.0)
-BASELINE_TIME = (-1.0, -0.5)
+BASELINE_TIME = (-0.5, -0.1)
 
 file_paths = paths.prep_unity_alloego_files(base_path, participant)
 eeg, montage = loader.load_eeg(file_paths, 'perHeadbox')
-
+montage = loader.load
 pd_events = mneprep.load_preprocessed_events(file_paths)
 mne_events, events_mapp = mneprep.pd_to_mne_events(pd_events, eeg.info['sfreq'])
 
 # Preprocessing
 eeg.notch_filter(50)
 
-# Epoching
-# Needs to give it long tails because of the low frequnecies
+# Epoching - Needs to give it long tails because of the low frequnecies
+# later in the convolution
 epochs = mne.Epochs(eeg, mne_events, event_id=events_mapp, tmin=-5, tmax=5)
 
-bad_epochs = mneprep.read_bad_epochs(file_paths)
+bad_epochs = mneprep.read_bad_epochs(file_paths, append='-perElectrode')
 epochs.drop(bad_epochs)
-epochs.plot(scalings=scalings, n_epochs=10, n_channels=25)
+# epochs.plot(scalings=scalings, n_epochs=10, n_channels=25)
 
 # Spectral power estimates were computed by convolving the filtered signal
 # with six cycle Morlet wavelets at 32 logarithmically spaced frequencies
@@ -49,12 +49,15 @@ freqs = np.logspace(np.log(1.0), np.log(45.0), num=32)
 freqs = freqs[0:10]  # don't need the higher ones
 n_cycles = 6
 
-events = ['onsets_500_1500', 'stops_500_1500']
-morlet = tfr_morlet(epochs[events], freqs, n_cycles=n_cycles, decim=5,
+morlet = tfr_morlet(epochs, freqs, n_cycles=n_cycles, decim=5,
                     average=False, return_itc=False, n_jobs=1)
 
 morlet.crop(*FULL_EPOCH_TIME)
+mneprep.save_tfr_epochs(morlet, file_paths, append='-bohbot-perElectrode')
 # Calculate the morlet convolutions and return epochsTFR, not AverageTFR
+
+morlet = mneprep.load_tfr_epochs(file_paths, append='-bohbot-perElectrode')
+_, montage = loader.load_eeg(file_paths, 'perHeadbox')
 
 # MINE --------
 morlet['onsets_500_1500'].data.shape
@@ -78,7 +81,7 @@ morlet = mneanalysis.band_power(morlet, lfo_bands)
 
 # Log transform the data
 log_morlet = morlet.copy()
-log_morlet.data = np.log(log_morlet.data)
+log_morlet.data = np.log10(log_morlet.data)
 # log_morlet.average().plot(23)
 
 # Z transform the data
@@ -103,29 +106,41 @@ mnevis.plot_power_heatmap(log_morlet.copy().average().pick(pick_hip_names))
 # condition (for example, Search).
 average_onsets = np.average(z_morlet['onsets_500_1500'].data, axis=-1)
 average_stops = np.average(z_morlet['stops_500_1500'].data, axis=-1)
-# Epochs are epoch x channels x freqs x time
-# averaged over time
+# Epochs are epoch x channels x freqs x timen averaged over time
+
+# We then compared these values using a t-test between conditions
+# (for example, search versus stop period).
 all_pvalue1 = np.empty(average_onsets.shape[1:3])
 all_pvalueInd = np.empty(average_onsets.shape[1:3])
 for iChannel in range(0, average_onsets.shape[1]):
     for iFrequency in range(0, average_onsets.shape[2]):
         stat1, pvalue1 = stats.ttest_1samp(
             average_onsets[:, iChannel, iFrequency], 0)
-        all_pvalue1[iChannel, iFrequency] = pvalue1
+        all_pvalue1[iChannel, iFrequency] = pvalue1*np.sign(stat1)
+        # negative means the second is larger
         statInd, pvalueInd = stats.ttest_ind(
             average_onsets[:, iChannel, iFrequency],
-            average_stops[:, iChannel, iFrequency])
-        all_pvalueInd[iChannel, iFrequency] = pvalueInd
+            average_stops[:, iChannel, iFrequency],
+            equal_var=False)
+        all_pvalueInd[iChannel, iFrequency] = pvalueInd*np.sign(statInd)
 
+# MOVE VS STILL
 # Channels where low theta is sig stronger in move than still
-low_theta_channels = np.where(all_pvalueInd[:, 0] < 0.01)[0]
+low_theta_channels = np.where((all_pvalueInd[:, 0] < 0.01) & (all_pvalueInd[:, 0] > 0))[0]
 montage.iloc[low_theta_channels]
 # Channels where high theta is sig stronger from still
-high_theta_channels = np.where(all_pvalueInd[:, 1] < 0.01)[0]
+high_theta_channels = np.where((all_pvalueInd[:, 1] < 0.01) & (all_pvalueInd[:, 1] > 0))[0]
 montage.iloc[high_theta_channels]
 
-# We then compared these values using a t-test between conditions
-# (for example, search versus stop period).
+# STILL VS MOVE
+# Channels where low theta is sig stronger in still than move
+low_theta_channels = np.where((-all_pvalueInd[:, 0] < 0.01) & (-all_pvalueInd[:, 0] > 0))[0]
+montage.iloc[low_theta_channels]
+# Channels where high theta is sig stronger in still from move
+high_theta_channels = np.where((-all_pvalueInd[:, 1] < 0.01) & (-all_pvalueInd[:, 1] > 0))[0]
+montage.iloc[high_theta_channels]
+
+
 
 # We corrected for multiple comparisons by bootstrapping the power values
 # for each trial between movement conditions and stop conditions, conducting
