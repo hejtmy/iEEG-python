@@ -57,4 +57,5 @@ def log_transform(tfr):
     tfr.data = np.log(tfr.data)
 
 
-def z_transform(tfr, per="channel")
+def z_transform(tfr, per="channel"):
+    return None

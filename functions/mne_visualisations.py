@@ -28,7 +28,7 @@ def plot_power_heatmap(tfr, ncol=6):
             i = c + r*ncol
             if i >= tfr.data.shape[0]:
                 break
-            im = axs[r, c].pcolormesh(tfr.data[i, ...])
+            im = axs[r, c].imshow(tfr.data[i, ...], aspect=10, vmin=-0.5, vmax=0.5)
             _ = axs[r, c].axvline(zero)
             _ = axs[r, c].set_title(tfr.ch_names[i])
             _ = axs[r, c].set_xticks(x)
@@ -39,3 +39,5 @@ def plot_power_heatmap(tfr, ncol=6):
     cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
     fig.colorbar(im, cax=cbar_ax)
     plt.show()
+
+# plot_power_heatmap(morlet['onsets_500_1500'].copy().apply_baseline((-1, -0.5), mode='logratio').average().pick(pick_hip_names))
