@@ -14,6 +14,11 @@ def eeg_path(experiment_path):
     return os.path.join(experiment_path, 'EEG', 'Preprocessed')
 
 
+def bad_epochs_path(file_paths, append):
+    fname = "bad-epochs" + append + ".txt"
+    return os.path.join(file_paths['folder'], fname)
+
+
 def prep_unity_alloego_files(base, participant):
     exp_path = eeg_path(unity_alloego_path(base, participant))
     files = dict()

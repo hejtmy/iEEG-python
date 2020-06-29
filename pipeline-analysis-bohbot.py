@@ -19,7 +19,7 @@ from mne.time_frequency import tfr_morlet
 
 base_path = 'E:/OneDrive/FGU/iEEG/Data'
 participant = 'p136'
-scalings = {'seeg': 1e2, 'ecg': 1e2, 'misc': 1e2}
+scalings = {'seeg': 5e2, 'ecg': 1e2, 'misc': 1e2}
 FULL_EPOCH_TIME = (-1.0, 1.5)
 EPOCH_TIME = (0, 1.0)
 BASELINE_TIME = (-1.0, -0.5)
@@ -36,6 +36,10 @@ eeg.notch_filter(50)
 # Epoching
 # Needs to give it long tails because of the low frequnecies
 epochs = mne.Epochs(eeg, mne_events, event_id=events_mapp, tmin=-5, tmax=5)
+
+bad_epochs = mneprep.read_bad_epochs(file_paths)
+epochs.drop(bad_epochs)
+epochs.plot(scalings=scalings, n_epochs=10, n_channels=25)
 
 # Spectral power estimates were computed by convolving the filtered signal
 # with six cycle Morlet wavelets at 32 logarithmically spaced frequencies

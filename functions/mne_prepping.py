@@ -3,6 +3,7 @@ import pandas as pd
 import mne
 
 from functions import read_experiment_data as exprd
+from functions import paths
 from functions import helpers
 
 
@@ -136,3 +137,13 @@ def create_montage(eeg, pd_montage):
         coord_frame='head')
     info = eeg.info.set_montage(mne_dig_montage)
     return(info)
+
+
+def write_bad_epochs(file_paths, bad_epochs, append=''):
+    filepath = paths.bad_epochs_path(file_paths, append)
+    np.savetxt(filepath, bad_epochs, fmt='%1.0i', delimiter=',')
+
+
+def read_bad_epochs(file_paths, append=''):
+    filepath = paths.bad_epochs_path(file_paths, append)
+    return np.genfromtxt(filepath, dtype='int64', delimiter=',')
