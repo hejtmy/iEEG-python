@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_power_heatmap(tfr, ncol=6):
+def plot_power_heatmap(tfr, ncol=6, vmin=-3, vmax=3):
     """Plots 
 
     basically replaces plot topo power which for some reason I am quite unable to run
@@ -23,12 +23,14 @@ def plot_power_heatmap(tfr, ncol=6):
     x = (0, zero, len(tfr.times))
     xlabels = (round(tfr.times[0], 1), 0, round(tfr.times[-1], 1))
     y, ylabels = range(0, len(tfr.freqs)), np.round(tfr.freqs, 3)
+
     for r in range(0, nrow):
         for c in range(0, ncol):
             i = c + r*ncol
             if i >= tfr.data.shape[0]:
                 break
-            im = axs[r, c].imshow(tfr.data[i, ...], aspect=10, vmin=-0.5, vmax=0.5)
+            im = axs[r, c].imshow(tfr.data[i, ...], aspect=10,
+                                  vmin=vmin, vmax=vmax)
             _ = axs[r, c].axvline(zero)
             _ = axs[r, c].set_title(tfr.ch_names[i])
             _ = axs[r, c].set_xticks(x)
