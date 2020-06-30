@@ -1,5 +1,6 @@
 import numpy as np
 from mne.time_frequency import tfr_morlet
+from functions import mne_stats as mnestats
 import mne
 
 
@@ -54,8 +55,30 @@ def band_power(tfr, bands):
 
 
 def log_transform(tfr):
-    tfr.data = np.log(tfr.data)
+    tfr.data = np.log10(tfr.data)
+    return tfr
 
 
-def z_transform(tfr, per="channel"):
-    return None
+def z_transform(tfr, baseline):
+    """z transforms epoched TFRs
+
+    the mean is taken from the baseline, but the standard deviation is calculated
+    across all epochs and all times. Therefore you shoudl pass here a FULL epochsTFR,
+    not just the wanted events (because then the standard deviation could be biased)
+
+    Parameters
+    ----------
+    tfr : mne.EpochsTFR
+        
+    baseline : tuple(float, float)
+        baseline to calulate mean to be substracted
+
+    Returns
+    -------
+    mne.EpochsTFR
+        Z transformed object 
+    """
+    tfr = tfr.apply_baseline(baseline, mode="mean")
+    sds = mnestats.epochs_sds(tfr)
+    tfr.data = tfr.data/sds
+    return tfr

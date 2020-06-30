@@ -44,11 +44,11 @@ def wilcox_tfr_power(tfr1_orig, tfr2_orig, picks=None, average=False):
 def plot_wilcox(wilcox_table, channel, sampling_frequency, cutout=0.05, freqs=[]):
     if len(freqs) == 0:
         freqs = range(len(wilcox_table[channel]))
-    #recalculates to seconds from sampling freq
+    # recalculates to seconds from sampling freq
     times = range(len(wilcox_table[channel][0]))
     times = [time/sampling_frequency for time in times]
     x, y = np.meshgrid(times, freqs)
-    
+
     p_values = np.array(wilcox_table[channel])
     p_values[p_values > cutout] = 1
     p_values[p_values < -cutout] = -1
@@ -92,3 +92,28 @@ def plot_wilcox_box(wilcox_table, sampling_frequency, cutout=0.05,
     cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
     fig.colorbar(im, cax = cbar_ax)
     plt.show()
+
+
+def epochs_sds(epochs, per="channel"):
+    """Calculates standard deviations from passed EpochsTFR
+
+    Parameters
+    ----------
+    epochs : mne.EpochsTFR
+        Calculated epochs tfr object. Technically takes even raw epoched
+        eeg, but the output will be rubbish
+    per : str, optional
+        NOT WORKING ATM, Currently only calculates per frequency and channel
+        by default "channel"
+    Returns
+    -----------
+    np.ndarray
+        array of the dimensions (1 x channel x frequency x 1)
+        with standard deviations
+    """
+    # Epochs are in epoch x channel x frequency x time format
+    # need to concat all from same "channel" and frequency
+    concat = np.concatenate(epochs.data, axis=2)
+    sds = np.std(concat[..., :], axis=-1, keepdims=True)
+    sds = np.expand_dims(sds, axis=0)
+    return sds

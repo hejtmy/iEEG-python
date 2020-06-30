@@ -20,7 +20,7 @@ def load_eeg(file_paths, type='original'):
     if type not in valid_types:
         raise Exception('You have passed invalid type of eeg')
     frequency = readeegr.get_frequency(file_paths['folder'])
-    montage = readeegr.read_montage(file_paths['montage'][type])
+    montage = load_montage(file_paths, type)
     eeg = load_raw(file_paths['EEG'][type], frequency, montage)
     return eeg, montage
 
@@ -43,3 +43,7 @@ def load_raw(data_path, frequency, montage=None):
     data = readeegr.read_mat(data_path)
     raw = readeegr.eeg_mat_to_mne(data, frequency, montage)
     return raw
+
+
+def load_montage(file_paths, type):
+    return readeegr.read_montage(file_paths['montage'][type])
