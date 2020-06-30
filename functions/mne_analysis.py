@@ -74,7 +74,7 @@ def z_transform_all(tfr):
     -------
     mne.EpochsTFR
     """
-    means, sds = mnestats.epochs_sds(tfr)
+    means, sds = mnestats.epochs_means_sds(tfr)
     tfr.data = (tfr.data - means)/sds
     return tfr
 

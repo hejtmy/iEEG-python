@@ -17,7 +17,7 @@ from functions import mne_visualisations as mnevis
 # from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 # %% Setup
 base_path = 'E:/OneDrive/FGU/iEEG/Data'
-participant = 'p136'
+participant = 'p129'
 scalings = {'seeg': 5e2, 'ecg': 1e2, 'misc': 1e2}
 FULL_EPOCH_TIME = (-1.5, 1.5)
 EPOCH_TIME = (0, 1.5)
@@ -62,13 +62,14 @@ avg.plot_topo(layout=box, picks=pick_all, baseline=BASELINE_TIME,
 # alpha (8–12 Hz) frequency bands. Power values were also subsequently
 # log transformed and then z-transformed.
 lfo_bands = [[1, 4], [4, 8], [8, 13]]
-morlet = mneanalysis.band_power(morlet, lfo_bands)
+morlet_bands = mneanalysis.band_power(morlet.copy(), lfo_bands)
 
 # Log transform the data
-log_morlet = mneanalysis.log_transform(morlet.copy())
+log_morlet = mneanalysis.log_transform(morlet_bands.copy())
 
 # Z transform the data
-z_morlet = mneanalysis.z_transform_baseline(log_morlet.copy(), (-1.0, 1.5))
+# z_morlet = mneanalysis.z_transform_baseline(log_morlet.copy(), (-1.0, 1.5))
+z_morlet = mneanalysis.z_transform_all(log_morlet.copy())
 # z_morlet.crop(*EPOCH_TIME)
 
 # %% Visualisaiotns
@@ -79,6 +80,7 @@ box = mne.channels.layout.make_grid_layout(z_morlet.info, picks=pick_all)
 z_morlet['onsets_500_1500'].average().plot_topo(layout=box, picks=pick_hip, title='Average power')
 z_morlet['stops_500_1500'].average().plot_topo(layout=box, picks=pick_all, title='Average power')
 
+# %%
 mnevis.plot_power_heatmap(z_morlet['onsets_500_1500'].average().pick(pick_hip_names), ylim=(-0.5, 0.5))
 mnevis.plot_power_heatmap(z_morlet['stops_500_1500'].average().pick(pick_hip_names), ylim=(-0.5, 0.5))
 
