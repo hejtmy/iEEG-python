@@ -5,7 +5,6 @@
 # %%
 import mne
 import numpy as np
-import matplotlib.pyplot as plt
 import scipy.stats as stats
 
 from functions import mne_prepping as mneprep
@@ -13,20 +12,18 @@ from functions import mne_loading as loader
 from functions import mne_helpers as mnehelp
 from functions import paths
 from functions import mne_analysis as mneanalysis
-from functions import mne_stats as mnestats
 from functions import mne_visualisations as mnevis
-from mne.time_frequency import tfr_morlet
 
 # from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 # %% Setup
 base_path = 'E:/OneDrive/FGU/iEEG/Data'
 participant = 'p136'
 scalings = {'seeg': 5e2, 'ecg': 1e2, 'misc': 1e2}
-FULL_EPOCH_TIME = (-1.0, 1.5)
+FULL_EPOCH_TIME = (-1.5, 1.5)
 EPOCH_TIME = (0, 1.5)
 BASELINE_TIME = (-0.5, -0.2)
 file_paths = paths.prep_unity_alloego_files(base_path, participant)
-EEG_TYPE = 'perHeadbox'
+EEG_TYPE = 'perElectrode'
 
 # %% Raw eeg loading
 eeg, montage = loader.load_eeg(file_paths, EEG_TYPE)
@@ -43,23 +40,6 @@ epochs = mne.Epochs(eeg, mne_events, event_id=events_mapp, tmin=-5, tmax=5)
 
 bad_epochs = mneprep.read_bad_epochs(file_paths, append='-perElectrode')
 epochs.drop(bad_epochs)
-# epochs.plot(scalings=scalings, n_epochs=10, n_channels=25)
-
-# %% CONVOLUTION
-# Spectral power estimates were computed by convolving the filtered signal
-# with six cycle Morlet wavelets at 32 logarithmically spaced frequencies
-# ranging from 1 to 45 Hz. Because our hypotheses are concerning LFOs
-# we focused on frequencies lower than 32 Hz.
-freqs = np.logspace(np.log(1.0), np.log(45.0), num=32)
-freqs = freqs[0:10]  # don't need the higher ones
-n_cycles = 6
-
-morlet = tfr_morlet(epochs, freqs, n_cycles=n_cycles, decim=5,
-                    average=False, return_itc=False, n_jobs=1)
-
-morlet.crop(*FULL_EPOCH_TIME)
-mneprep.save_tfr_epochs(morlet, file_paths, append='-bohbot-perElectrode')
-# Calculate the morlet convolutions and return epochsTFR, not AverageTFR
 
 # %% Analysis
 morlet = mneprep.load_tfr_epochs(file_paths, append='-bohbot-perElectrode')
@@ -88,20 +68,19 @@ morlet = mneanalysis.band_power(morlet, lfo_bands)
 log_morlet = mneanalysis.log_transform(morlet.copy())
 
 # Z transform the data
-z_morlet = mneanalysis.z_transform(log_morlet.copy(), (-0.5,-0.1))
-z_morlet.crop(*EPOCH_TIME)
+z_morlet = mneanalysis.z_transform_baseline(log_morlet.copy(), (-1.0, 1.5))
+# z_morlet.crop(*EPOCH_TIME)
 
 # %% Visualisaiotns
 # *MNE  technically does each z scoring individually per epoch, not sure
 # if this is wanted behavior - maybe this could be done differently
 # https://github.com/mne-tools/mne-python/blob/76ee63ff92b0424a304a12532d0cb53c0833a0ec/mne/baseline.py
 box = mne.channels.layout.make_grid_layout(z_morlet.info, picks=pick_all)
-z_morlet['onsets_500_1500'].average().plot_topo(layout=box, picks=pick_all, title='Average power')
+z_morlet['onsets_500_1500'].average().plot_topo(layout=box, picks=pick_hip, title='Average power')
 z_morlet['stops_500_1500'].average().plot_topo(layout=box, picks=pick_all, title='Average power')
 
-mnevis.plot_power_heatmap(z_morlet['onsets_500_1500'].average().pick(pick_hip_names), vmin=-3, vmax=3)
-mnevis.plot_power_heatmap(z_morlet['stops_500_1500'].average().pick(pick_hip_names), vmin=-0.5,vmax=0.5)
-mnevis.plot_power_heatmap(log_morlet.copy().average().pick(pick_hip_names))
+mnevis.plot_power_heatmap(z_morlet['onsets_500_1500'].average().pick(pick_hip_names), ylim=(-0.5, 0.5))
+mnevis.plot_power_heatmap(z_morlet['stops_500_1500'].average().pick(pick_hip_names), ylim=(-0.5, 0.5))
 
 # %% Comparisons
 # The number of electrode contacts with significantly different power values
@@ -139,10 +118,10 @@ montage.iloc[high_theta_channels]
 
 # %% STILL VS MOVE
 # Channels where low theta is sig stronger in still than move
-low_theta_channels = np.where((-all_pvalueInd[:, 0] < 0.01) & (-all_pvalueInd[:, 0] > 0))[0]
+low_theta_channels = np.where((-all_pvalueInd[:, 0] < 0.001) & (-all_pvalueInd[:, 0] > 0))[0]
 montage.iloc[low_theta_channels]
 # Channels where high theta is sig stronger in still from move
-high_theta_channels = np.where((-all_pvalueInd[:, 1] < 0.01) & (-all_pvalueInd[:, 1] > 0))[0]
+high_theta_channels = np.where((-all_pvalueInd[:, 1] < 0.001) & (-all_pvalueInd[:, 1] > 0))[0]
 montage.iloc[high_theta_channels]
 
 
