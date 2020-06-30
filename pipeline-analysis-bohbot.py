@@ -2,6 +2,7 @@
 # and virtual navigation
 
 # Veronique D. Bohbot, Milagros S. Copara, Jean Gotman Arne D. Ekstrom
+# %%
 import mne
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,35 +13,39 @@ from functions import mne_loading as loader
 from functions import mne_helpers as mnehelp
 from functions import paths
 from functions import mne_analysis as mneanalysis
+from functions import mne_stats as mnestats
 from functions import mne_visualisations as mnevis
 from mne.time_frequency import tfr_morlet
 
 # from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
-
+# %% Setup
 base_path = 'E:/OneDrive/FGU/iEEG/Data'
 participant = 'p136'
 scalings = {'seeg': 5e2, 'ecg': 1e2, 'misc': 1e2}
 FULL_EPOCH_TIME = (-1.0, 1.5)
-EPOCH_TIME = (0, 1.0)
-BASELINE_TIME = (-0.5, -0.1)
-
+EPOCH_TIME = (0, 1.5)
+BASELINE_TIME = (-0.5, -0.2)
 file_paths = paths.prep_unity_alloego_files(base_path, participant)
-eeg, montage = loader.load_eeg(file_paths, 'perHeadbox')
-montage = loader.load
-pd_events = mneprep.load_preprocessed_events(file_paths)
-mne_events, events_mapp = mneprep.pd_to_mne_events(pd_events, eeg.info['sfreq'])
+EEG_TYPE = 'perHeadbox'
 
-# Preprocessing
+# %% Raw eeg loading
+eeg, montage = loader.load_eeg(file_paths, EEG_TYPE)
 eeg.notch_filter(50)
 
-# Epoching - Needs to give it long tails because of the low frequnecies
-# later in the convolution
+# %% Epoching
+pd_events = mneprep.load_preprocessed_events(file_paths)
+mne_events, events_mapp = mneprep.pd_to_mne_events(pd_events,
+                                                   eeg.info['sfreq'])
+
+# Needs to give it long tails because of the
+# low frequnecies later in the convolution
 epochs = mne.Epochs(eeg, mne_events, event_id=events_mapp, tmin=-5, tmax=5)
 
 bad_epochs = mneprep.read_bad_epochs(file_paths, append='-perElectrode')
 epochs.drop(bad_epochs)
 # epochs.plot(scalings=scalings, n_epochs=10, n_channels=25)
 
+# %% CONVOLUTION
 # Spectral power estimates were computed by convolving the filtered signal
 # with six cycle Morlet wavelets at 32 logarithmically spaced frequencies
 # ranging from 1 to 45 Hz. Because our hypotheses are concerning LFOs
@@ -56,23 +61,23 @@ morlet.crop(*FULL_EPOCH_TIME)
 mneprep.save_tfr_epochs(morlet, file_paths, append='-bohbot-perElectrode')
 # Calculate the morlet convolutions and return epochsTFR, not AverageTFR
 
+# %% Analysis
 morlet = mneprep.load_tfr_epochs(file_paths, append='-bohbot-perElectrode')
-_, montage = loader.load_eeg(file_paths, 'perHeadbox')
+montage = loader.load_montage(file_paths, EEG_TYPE)
 
-# MINE --------
-morlet['onsets_500_1500'].data.shape
-pick_all = mnehelp.picks_all(eeg, montage)
-pick_all_names = mne.pick_info(eeg.info, pick_all)['ch_names']
-pick_hip = mnehelp.picks_all_localised(eeg, montage, 'Hi')
-pick_hip_names = mne.pick_info(eeg.info, pick_hip)['ch_names']
+# %% PICKS
+pick_all = mnehelp.picks_all(morlet, montage)
+pick_all_names = mne.pick_info(morlet.info, pick_all)['ch_names']
+pick_hip = mnehelp.picks_all_localised(morlet, montage, 'Hi')
+pick_hip_names = mne.pick_info(morlet.info, pick_hip)['ch_names']
 
+# %% Not important
 avg = morlet['onsets_500_1500'].average()
 box = mne.channels.layout.make_grid_layout(avg.info, picks=pick_all)
-avg.plot_topo(layout=box, picks=pick_all, baseline=(-1, -0.5),
+avg.plot_topo(layout=box, picks=pick_all, baseline=BASELINE_TIME,
               mode='zscore', title='Average power')
 
-morlet['onsets_500_1500'].average().plot(0)
-
+# %% Processing
 # These power values were binned into delta (1–4 Hz), theta(4–8 Hz) and
 # alpha (8–12 Hz) frequency bands. Power values were also subsequently
 # log transformed and then z-transformed.
@@ -80,25 +85,25 @@ lfo_bands = [[1, 4], [4, 8], [8, 13]]
 morlet = mneanalysis.band_power(morlet, lfo_bands)
 
 # Log transform the data
-log_morlet = morlet.copy()
-log_morlet.data = np.log10(log_morlet.data)
-# log_morlet.average().plot(23)
+log_morlet = mneanalysis.log_transform(morlet.copy())
 
 # Z transform the data
-# MNE "zlogratio" divides by mean and then log transforms, not what we want.
-# we want to do a z-transfrom on log-transformed data
-z_morlet = log_morlet.copy().apply_baseline(BASELINE_TIME, mode="zscore")
-# z_morlet = log_morlet.copy().apply_baseline(EPOCH_TIME, mode="zscore")
+z_morlet = mneanalysis.z_transform(log_morlet.copy(), (-0.5,-0.1))
 z_morlet.crop(*EPOCH_TIME)
 
-# MNE WAY
-# *This technically does each z scoring individually per epoch, not sure
+# %% Visualisaiotns
+# *MNE  technically does each z scoring individually per epoch, not sure
 # if this is wanted behavior - maybe this could be done differently
 # https://github.com/mne-tools/mne-python/blob/76ee63ff92b0424a304a12532d0cb53c0833a0ec/mne/baseline.py
-mnevis.plot_power_heatmap(morlet['onsets_500_1500'].copy().apply_baseline((-1, 2), mode='logratio').average().pick(pick_hip_names))
-mnevis.plot_power_heatmap(morlet['stops_500_1500'].copy().apply_baseline((-1, -0.5), mode='logratio').average().pick(pick_hip_names))
+box = mne.channels.layout.make_grid_layout(z_morlet.info, picks=pick_all)
+z_morlet['onsets_500_1500'].average().plot_topo(layout=box, picks=pick_all, title='Average power')
+z_morlet['stops_500_1500'].average().plot_topo(layout=box, picks=pick_all, title='Average power')
+
+mnevis.plot_power_heatmap(z_morlet['onsets_500_1500'].average().pick(pick_hip_names), vmin=-3, vmax=3)
+mnevis.plot_power_heatmap(z_morlet['stops_500_1500'].average().pick(pick_hip_names), vmin=-0.5,vmax=0.5)
 mnevis.plot_power_heatmap(log_morlet.copy().average().pick(pick_hip_names))
 
+# %% Comparisons
 # The number of electrode contacts with significantly different power values
 # across experimental conditions was determined with t-tests across each
 # frequency band at a P value 0.01. Thus,we averaged the log and z-transformed
@@ -124,7 +129,7 @@ for iChannel in range(0, average_onsets.shape[1]):
             equal_var=False)
         all_pvalueInd[iChannel, iFrequency] = pvalueInd*np.sign(statInd)
 
-# MOVE VS STILL
+# %% MOVE VS STILL
 # Channels where low theta is sig stronger in move than still
 low_theta_channels = np.where((all_pvalueInd[:, 0] < 0.01) & (all_pvalueInd[:, 0] > 0))[0]
 montage.iloc[low_theta_channels]
@@ -132,13 +137,16 @@ montage.iloc[low_theta_channels]
 high_theta_channels = np.where((all_pvalueInd[:, 1] < 0.01) & (all_pvalueInd[:, 1] > 0))[0]
 montage.iloc[high_theta_channels]
 
-# STILL VS MOVE
+# %% STILL VS MOVE
 # Channels where low theta is sig stronger in still than move
 low_theta_channels = np.where((-all_pvalueInd[:, 0] < 0.01) & (-all_pvalueInd[:, 0] > 0))[0]
 montage.iloc[low_theta_channels]
 # Channels where high theta is sig stronger in still from move
 high_theta_channels = np.where((-all_pvalueInd[:, 1] < 0.01) & (-all_pvalueInd[:, 1] > 0))[0]
 montage.iloc[high_theta_channels]
+
+
+# %%
 
 
 
@@ -167,3 +175,6 @@ montage.iloc[high_theta_channels]
 # on electrode counts across frequency bands. This allowed us to look for
 # crossover interaction effects, in other words, a differentialdistribution
 # of electrodes as a function of both condition and frequency band
+
+
+# %%
