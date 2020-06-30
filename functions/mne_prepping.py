@@ -139,7 +139,19 @@ def create_montage(eeg, pd_montage):
     return(info)
 
 
-def write_bad_epochs(bad_epochs, file_paths, append=''):
+def write_bad_epochs(epochs, file_paths, append=''):
+    """[summary]
+
+    Parameters
+    ----------
+    epochs : mne.Epochs
+        [description]
+    file_paths : [type]
+        [description]
+    append : str, optional
+        [description], by default ''
+    """
+    bad_epochs = np.where(epochs.drop_log)
     filepath = paths.bad_epochs_path(file_paths, append)
     np.savetxt(filepath, bad_epochs, fmt='%1.0i', delimiter=',')
 

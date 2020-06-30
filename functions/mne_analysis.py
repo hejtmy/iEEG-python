@@ -59,8 +59,28 @@ def log_transform(tfr):
     return tfr
 
 
-def z_transform(tfr, baseline):
-    """z transforms epoched TFRs
+def z_transform_all(tfr):
+    """Z transforms based on mean and sd from all epochs
+
+    Transforms per frequency and electrode. Differs from z_transform_baseline
+    which calculates sd in the same way but takes only mean from the baseline
+    period per each epoch
+
+    Parameters
+    ----------
+    tfr : [type]
+        [description]
+    Returns
+    -------
+    mne.EpochsTFR
+    """
+    means, sds = mnestats.epochs_sds(tfr)
+    tfr.data = (tfr.data - means)/sds
+    return tfr
+
+
+def z_transform_baseline(tfr, baseline):
+    """z transforms epoched TFRs based on baseline and sd from all epochs
 
     the mean is taken from the baseline, but the standard deviation is calculated
     across all epochs and all times. Therefore you shoudl pass here a FULL epochsTFR,
@@ -69,16 +89,16 @@ def z_transform(tfr, baseline):
     Parameters
     ----------
     tfr : mne.EpochsTFR
-        
+        EpochedTFR to be transformed
     baseline : tuple(float, float)
         baseline to calulate mean to be substracted
 
     Returns
     -------
     mne.EpochsTFR
-        Z transformed object 
+        Z-transformed object
     """
     tfr = tfr.apply_baseline(baseline, mode="mean")
-    sds = mnestats.epochs_sds(tfr)
+    _, sds = mnestats.epochs_means_sds(tfr)
     tfr.data = tfr.data/sds
     return tfr

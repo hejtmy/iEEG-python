@@ -94,9 +94,10 @@ def plot_wilcox_box(wilcox_table, sampling_frequency, cutout=0.05,
     plt.show()
 
 
-def epochs_sds(epochs, per="channel"):
-    """Calculates standard deviations from passed EpochsTFR
+def epochs_means_sds(epochs, per="channel"):
+    """Calculates means and standard deviations from passed EpochsTFR
 
+    Generally used for the z-transformations in the mne_preppring
     Parameters
     ----------
     epochs : mne.EpochsTFR
@@ -107,13 +108,15 @@ def epochs_sds(epochs, per="channel"):
         by default "channel"
     Returns
     -----------
-    np.ndarray
+    touple of np.ndarray
         array of the dimensions (1 x channel x frequency x 1)
-        with standard deviations
+        with means and standard deviations
     """
     # Epochs are in epoch x channel x frequency x time format
     # need to concat all from same "channel" and frequency
     concat = np.concatenate(epochs.data, axis=2)
     sds = np.std(concat[..., :], axis=-1, keepdims=True)
+    means = np.mean(concat[..., :], axis=-1, keepdims=True)
     sds = np.expand_dims(sds, axis=0)
-    return sds
+    means = np.expand_dims(means, axis=0)
+    return means, sds
