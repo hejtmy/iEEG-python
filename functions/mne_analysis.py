@@ -1,9 +1,62 @@
 import numpy as np
-from mne.time_frequency import tfr_morlet
 from functions import mne_stats as mnestats
 import mne
+import scipy.stats as stats
 
 
+# ANALYSIS -------
+def compare_events_averaged_power(tfr, event1_name, event2_name,
+                                  time=None, method='ttest'):
+    """Calculates difference in power averaged over time between two events
+
+    Calculates differences in averaged power in given frequency and on given
+    channel. Returns statistics of given tests and their pvalues
+
+    Parameters
+    ----------
+    tfr : mne.EpochsTFR
+        [description]
+    event1_name : str
+        [description]
+    event2_name : str
+        [description]
+    time : touple(float, float), optional
+        if set, averages only given timeframe. If none, calculates on the
+        entire epoch span, by default None
+    method : str, optional
+        [description], by default 'ttest'
+
+    Returns
+    -------
+    stats, pvalues : np.ndarray, np.ndarray
+        stats and pvalues as obtained by the test. Results have
+        channel x frequency character. E.g. [0, 2] will have
+        results for the first channel and third frequency
+    """
+
+    data = tfr.copy()
+    if time is not None:
+        data.crop(*time)
+    average_event1 = np.average(data[event1_name].data, axis=-1)
+    average_event2 = np.average(data[event2_name].data, axis=-1)
+    # Epochs are epoch x channels x freqs x timen averaged over time
+    n_channels = average_event1.shape[1]
+    n_frequencies = average_event1.shape[2]
+    
+    statistics = np.empty(average_event1.shape[1:3])
+    pvalues = np.empty(statistics.shape)
+    for iChannel in range(0, n_channels):
+        for iFrequency in range(0, n_frequencies):
+            tempStat, tempP = stats.ttest_ind(
+                average_event1[:, iChannel, iFrequency],
+                average_event2[:, iChannel, iFrequency],
+                equal_var=False)
+            statistics[iChannel, iFrequency] = tempStat
+            pvalues[iChannel, iFrequency] = tempP
+    return statistics, pvalues
+
+
+# PREPROCESSING -------
 def band_power(tfr, bands):
     """Averages TFR object into given bands
 
@@ -102,3 +155,5 @@ def z_transform_baseline(tfr, baseline):
     _, sds = mnestats.epochs_means_sds(tfr)
     tfr.data = tfr.data/sds
     return tfr
+
+

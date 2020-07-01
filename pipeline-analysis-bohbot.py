@@ -5,7 +5,6 @@
 # %%
 import mne
 import numpy as np
-import scipy.stats as stats
 
 from functions import mne_prepping as mneprep
 from functions import mne_loading as loader
@@ -17,7 +16,7 @@ from functions import mne_visualisations as mnevis
 # from mne.time_frequency import tfr_multitaper, tfr_stockwell, tfr_morlet
 # %% Setup
 base_path = 'E:/OneDrive/FGU/iEEG/Data'
-participant = 'p129'
+participant = 'p136'
 scalings = {'seeg': 5e2, 'ecg': 1e2, 'misc': 1e2}
 FULL_EPOCH_TIME = (-1.5, 1.5)
 EPOCH_TIME = (0, 1.5)
@@ -90,46 +89,24 @@ mnevis.plot_power_heatmap(z_morlet['stops_500_1500'].average().pick(pick_hip_nam
 # frequency band at a P value 0.01. Thus,we averaged the log and z-transformed
 # power for delta (1–4 Hz), theta (4–8 Hz), and alpha (8–12 Hz) bands for each
 # condition (for example, Search).
-average_onsets = np.average(z_morlet['onsets_500_1500'].data, axis=-1)
-average_stops = np.average(z_morlet['stops_500_1500'].data, axis=-1)
-# Epochs are epoch x channels x freqs x timen averaged over time
+stat, pvalues = mneanalysis.compare_events_averaged_power(
+    z_morlet, 'onsets_500_1500', 'stops_500_1500', time=(0, 1.5))
 
-# We then compared these values using a t-test between conditions
-# (for example, search versus stop period).
-all_pvalue1 = np.empty(average_onsets.shape[1:3])
-all_pvalueInd = np.empty(average_onsets.shape[1:3])
-for iChannel in range(0, average_onsets.shape[1]):
-    for iFrequency in range(0, average_onsets.shape[2]):
-        stat1, pvalue1 = stats.ttest_1samp(
-            average_onsets[:, iChannel, iFrequency], 0)
-        all_pvalue1[iChannel, iFrequency] = pvalue1*np.sign(stat1)
-        # negative means the second is larger
-        statInd, pvalueInd = stats.ttest_ind(
-            average_onsets[:, iChannel, iFrequency],
-            average_stops[:, iChannel, iFrequency],
-            equal_var=False)
-        all_pvalueInd[iChannel, iFrequency] = pvalueInd*np.sign(statInd)
-
-# %% MOVE VS STILL
-# Channels where low theta is sig stronger in move than still
-low_theta_channels = np.where((all_pvalueInd[:, 0] < 0.01) & (all_pvalueInd[:, 0] > 0))[0]
+# %% MOVE VS STILL LOW
+low_theta_channels = np.where((stat[:, 0] > 0) & (pvalues[:, 0] < 0.01))[0]
 montage.iloc[low_theta_channels]
-# Channels where high theta is sig stronger from still
-high_theta_channels = np.where((all_pvalueInd[:, 1] < 0.01) & (all_pvalueInd[:, 1] > 0))[0]
+
+# %% MOVE VS STILL HIGH
+high_theta_channels = np.where((stat[:, 1] > 0) & (pvalues[:, 1] < 0.01))[0]
 montage.iloc[high_theta_channels]
 
-# %% STILL VS MOVE
-# Channels where low theta is sig stronger in still than move
-low_theta_channels = np.where((-all_pvalueInd[:, 0] < 0.001) & (-all_pvalueInd[:, 0] > 0))[0]
+# %% STILL VS MOVE LOW
+low_theta_channels = np.where((stat[:, 0] < 0) & (pvalues[:, 0] < 0.01))[0]
 montage.iloc[low_theta_channels]
-# Channels where high theta is sig stronger in still from move
-high_theta_channels = np.where((-all_pvalueInd[:, 1] < 0.001) & (-all_pvalueInd[:, 1] > 0))[0]
+
+# %% STILL VS MOVE HIGH
+high_theta_channels = np.where((stat[:, 1] < 0) & (pvalues[:, 1] < 0.01))[0]
 montage.iloc[high_theta_channels]
-
-
-# %%
-
-
 
 # We corrected for multiple comparisons by bootstrapping the power values
 # for each trial between movement conditions and stop conditions, conducting
@@ -156,6 +133,3 @@ montage.iloc[high_theta_channels]
 # on electrode counts across frequency bands. This allowed us to look for
 # crossover interaction effects, in other words, a differentialdistribution
 # of electrodes as a function of both condition and frequency band
-
-
-# %%
