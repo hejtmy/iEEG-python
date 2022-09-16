@@ -65,7 +65,7 @@ traitlets==4.3.3
 traits==6.0.0
 traitsui==7.0.0
 urllib3==1.25.9
-vtk==9.0.0
+vtk==9.0.1
 wcwidth==0.1.9
 webencodings==0.5.1
 zipp==3.1.0
